@@ -3,6 +3,8 @@ const { validationResult } = require("express-validator");
 
 const User = require("../models/user");
 const HttpError = require("../models/http-error");
+const { createtoken } = require("../utils/index");
+const { uploadToCloudinary } = require("../utils/index");
 
 exports.getUserById = async (req, res, next) => {
   const { userId } = req.params;
@@ -20,7 +22,7 @@ exports.signUp = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return next(new HttpError("Invalid inputs!", 422));
+    return next(new HttpError("Invalid inputs!", 400));
   }
 
   const { name, email, password } = req.body;
@@ -31,10 +33,26 @@ exports.signUp = async (req, res, next) => {
     return next(new HttpError("Email used! Try login instead!", 422));
   }
 
+  let hashPassword;
   try {
-    const hashPassword = await bcrypt.hash(password, 12);
+    hashPassword = await bcrypt.hash(password, 12);
+  } catch (error) {
+    return next(new HttpError("Fail to hash password!", 500));
+  }
+  let imageUrl;
+  // try {
+  //   imageUrl = await uploadToCloudinary(req.file);
+  // } catch (error) {
+  //   return next(new HttpError("Fail to upload image to cloud!", 500));
+  // }
 
-    const newUser = new User({ name, email, password: hashPassword });
+  try {
+    const newUser = new User({
+      name,
+      email,
+      password: hashPassword,
+      avatar: imageUrl,
+    });
 
     await newUser.save();
 
@@ -43,9 +61,41 @@ exports.signUp = async (req, res, next) => {
         name: newUser.name,
         email: newUser.email,
         userId: newUser._id,
+        avatar: newUser.avatar,
       },
     });
-  } catch (error) {
-    return next(new HttpError("Internal Exception!", 500));
-  }
+  } catch (error) {}
 };
+
+exports.logIn = async (req, res, next) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return next(new HttpError("Invalid credetials!", 422));
+  }
+
+  const isEqual = await bcrypt.compare(password, user.password);
+  if (!isEqual) {
+    return next(new HttpError("Invalid credetials!", 422));
+  }
+
+  let token;
+  try {
+    token = createtoken(user._id, user.password);
+  } catch (error) {
+    return next(new HttpError("Failed to generate token!", 500));
+  }
+
+  res.status(200).json({
+    user: {
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+      token,
+    },
+  });
+};
+
+exports.updateUser = async (req, res, next) => {};

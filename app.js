@@ -4,12 +4,17 @@ const compression = require("compression");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
 
 const userRoutes = require("./routes/user");
+const postRoutes = require("./routes/post");
 
 const app = express();
 
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+// app.use(upload.array("files"));
 app.use(helmet());
 app.use(compression());
 
@@ -21,7 +26,8 @@ app.use(
   })
 );
 
-app.use("/users", userRoutes);
+app.use("/users", upload.single("file"), userRoutes);
+app.use("/posts", upload.single("file"), postRoutes);
 
 try {
   mongoose.connect(

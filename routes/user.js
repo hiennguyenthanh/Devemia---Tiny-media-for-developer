@@ -3,7 +3,7 @@ const { body } = require("express-validator");
 
 const userControllers = require("../controllers/user");
 
-const { getUserById, signUp } = userControllers;
+const { getUserById, signUp, logIn } = userControllers;
 
 router.get("/:userId", getUserById);
 
@@ -16,5 +16,7 @@ router.post(
   ],
   signUp
 );
+
+router.post("/login", logIn);
 
 module.exports = router;
