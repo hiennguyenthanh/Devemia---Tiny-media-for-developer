@@ -8,6 +8,8 @@ const postSchema = new Schema(
     content: { type: String, required: true },
     likes: [{ type: mongoose.Types.ObjectId, ref: "User" }],
     author: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+    comments: [{ type: mongoose.Types.ObjectId, ref: "Comment" }],
+    date: { type: Date, default: Date.now() },
   },
   { timestamps: true }
 );
