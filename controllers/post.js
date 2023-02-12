@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 exports.getAllPosts = async (req, res, next) => {
   try {
-    const posts = await Post.find().populate("author");
+    const posts = await Post.find().populate("author", "-password");
 
     res.status(200).json(posts);
   } catch (error) {
@@ -43,16 +43,7 @@ exports.createPost = async (req, res, next) => {
   });
 
   try {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    await newPost.save({ session });
-
-    user.posts.push(newPost);
-
-    await user.save({ session });
-
-    await session.commitTransaction();
+    await newPost.save();
   } catch (error) {
     return next(new HttpError("Fail to create post", 500));
   }
@@ -170,6 +161,7 @@ exports.deletePost = async (req, res, next) => {
     await post.author.save({ session });
 
     await session.commitTransaction();
+    await session.endSession();
   } catch (error) {
     return next(new HttpError("Fail to delete post!", 500));
   }

@@ -5,10 +5,12 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
+const storage = multer.memoryStorage();
+const upload = multer({ dest: "uploads/", storage });
 
 const userRoutes = require("./routes/user");
 const postRoutes = require("./routes/post");
+const commentRoutes = require("./routes/comment");
 
 const app = express();
 
@@ -28,6 +30,7 @@ app.use(
 
 app.use("/users", upload.single("file"), userRoutes);
 app.use("/posts", upload.single("file"), postRoutes);
+app.use("/comments", upload.single("file"), commentRoutes);
 
 try {
   mongoose.connect(

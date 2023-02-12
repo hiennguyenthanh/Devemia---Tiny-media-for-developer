@@ -39,12 +39,14 @@ exports.signUp = async (req, res, next) => {
   } catch (error) {
     return next(new HttpError("Fail to hash password!", 500));
   }
+
   let imageUrl;
-  // try {
-  //   imageUrl = await uploadToCloudinary(req.file);
-  // } catch (error) {
-  //   return next(new HttpError("Fail to upload image to cloud!", 500));
-  // }
+  try {
+    imageUrl = await uploadToCloudinary(req.file);
+    console.log(imageUrl);
+  } catch (error) {
+    return next(new HttpError("Fail to upload image to cloud!", 500));
+  }
 
   try {
     const newUser = new User({
@@ -54,9 +56,12 @@ exports.signUp = async (req, res, next) => {
       avatar: imageUrl,
     });
 
+    console.log(1);
+    console.log(newUser);
+
     await newUser.save();
 
-    res.status(201).json({
+    return res.status(201).json({
       user: {
         name: newUser.name,
         email: newUser.email,
@@ -64,7 +69,10 @@ exports.signUp = async (req, res, next) => {
         avatar: newUser.avatar,
       },
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log("error", error);
+    return next(new HttpError("Fail to create post!", 500));
+  }
 };
 
 exports.logIn = async (req, res, next) => {

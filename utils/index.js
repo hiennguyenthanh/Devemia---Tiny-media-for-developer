@@ -6,12 +6,10 @@ const jwt = require("jsonwebtoken");
 
 exports.uploadToCloudinary = async (file) => {
   try {
+    console.log(file);
     const extName = path.extname(file.originalname).toString();
     const file64 = parser.format(extName, file.buffer);
-
-    const uploadedResponse = await cloudinary.uploader.upload(file64.content, {
-      upload_preset: "devto",
-    });
+    const uploadedResponse = await cloudinary.uploader.upload(file64.content);
     return uploadedResponse.url;
   } catch (err) {
     console.log(err);

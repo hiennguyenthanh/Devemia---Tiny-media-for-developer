@@ -8,8 +8,8 @@ const commentSchema = new Schema(
     date: { type: Date, default: Date.now() },
     likes: [{ type: mongoose.Types.ObjectId, ref: "User" }],
     author: { type: mongoose.Types.ObjectId, ref: "User" },
-    parent: { type: mongoose.Types.ObjectId, ref: "Comment" },
-    post: { type: mongoose.Types.ObjectId, ref: "Post" },
+    parentId: { type: mongoose.Types.ObjectId, ref: "Comment" },
+    postId: { type: mongoose.Types.ObjectId, ref: "Post" },
 
     // childs: [{ type: mongoose.Types.ObjectId, ref: "Comment" }],
   },
