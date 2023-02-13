@@ -15,7 +15,7 @@ exports.uploadToCloudinary = async (file) => {
   }
 };
 
-exports.createtoken = (id, email) => {
+exports.createToken = (id, email) => {
   let token;
   try {
     token = jwt.sign({ userId: id, email: email }, "secret", {

@@ -8,17 +8,45 @@ const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+const cookieSession = require("cookie-session");
+// const passport = require("passport");
+// const GoogleStrategy = require("passport-google-oauth20").Strategy;
+
 const userRoutes = require("./routes/user");
 const postRoutes = require("./routes/post");
 const commentRoutes = require("./routes/comment");
 
 const app = express();
 
+// passport.use(
+//   new GoogleStrategy(
+//     {
+//       clientID:
+//         "764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com",
+//       clientSecret: "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",
+//       callbackURL: "/auth/google/callback",
+//     },
+//     (accessToken) => {
+//       console.log(accessToken);
+//     }
+//   )
+// );
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 // app.use(upload.array("files"));
 app.use(helmet());
 app.use(compression());
+
+app.use(
+  cookieSession({
+    name: "session",
+    keys: "cookie_key",
+    maxAge: 24 * 60 * 60 * 1000,
+    secure: false,
+    sameSite: false,
+  })
+);
 
 app.use(
   cors({

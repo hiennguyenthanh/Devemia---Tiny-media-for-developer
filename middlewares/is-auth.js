@@ -10,7 +10,9 @@ module.exports = (req, res, next) => {
     }
 
     const decodedToken = jwt.verify(token, "secret");
+
     req.userData = { userId: decodedToken.userId };
+
     console.log(req.userData);
     next();
   } catch (error) {

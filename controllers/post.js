@@ -4,6 +4,7 @@ const { validationResult } = require("express-validator");
 const Post = require("../models/post");
 const User = require("../models/user");
 const HttpError = require("../models/http-error");
+const { CommonError } = require("../enums/error");
 
 const {
   likeNotification,
@@ -24,7 +25,7 @@ exports.createPost = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return next(new HttpError("Invalid inputs!", 400));
+    return next(new HttpError(CommonError.INVALID_INPUT, 400));
   }
 
   const author = req.userData.userId;
@@ -33,7 +34,7 @@ exports.createPost = async (req, res, next) => {
   try {
     user = await User.findById(author);
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!user) {
@@ -67,7 +68,7 @@ exports.getPostById = async (req, res, next) => {
   try {
     post = await Post.findById(postId).populate("author", "-password");
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!post) {
@@ -107,7 +108,7 @@ exports.updatePost = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    return next(new HttpError("Invalid inputs!", 400));
+    return next(new HttpError(CommonError.INVALID_INPUT, 400));
   }
 
   const { postId } = req.params;
@@ -116,7 +117,7 @@ exports.updatePost = async (req, res, next) => {
   try {
     post = await Post.findById(postId);
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!post) {
@@ -124,7 +125,7 @@ exports.updatePost = async (req, res, next) => {
   }
 
   if (post.author.toString() !== req.userData.userId) {
-    return next(new HttpError("Unauthorized!", 403));
+    return next(new HttpError(CommonError.UNAUTHORIZED, 403));
   }
 
   Object.keys(req.body).map((key) => {
@@ -147,7 +148,7 @@ exports.deletePost = async (req, res, next) => {
   try {
     post = await Post.findById(postId).populate("author");
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!post) {
@@ -155,7 +156,7 @@ exports.deletePost = async (req, res, next) => {
   }
 
   if (post.author._id.toString() !== req.userData.userId) {
-    return next(new HttpError("Unauthorized!", 403));
+    return next(new HttpError(CommonError.UNAUTHORIZED, 403));
   }
 
   try {
@@ -182,7 +183,7 @@ exports.likePost = async (req, res, next) => {
   try {
     post = await Post.findById(postId);
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!post) {
@@ -214,7 +215,7 @@ exports.unlikePost = async (req, res, next) => {
   try {
     post = await Post.findById(postId);
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!post) {
