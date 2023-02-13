@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const multer = require("multer");
 const storage = multer.memoryStorage();
-const upload = multer({ dest: "uploads/", storage });
+const upload = multer({ storage });
 
 const userRoutes = require("./routes/user");
 const postRoutes = require("./routes/post");

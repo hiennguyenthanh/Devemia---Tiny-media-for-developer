@@ -2,8 +2,13 @@ const Comment = require("../models/comment");
 const Post = require("../models/post");
 const User = require("../models/user");
 const HttpError = require("../models/http-error");
-
+const ErrorEnum = require("../enums/error");
 const mongoose = require("mongoose");
+
+const {
+  commentNotification,
+  removeCommentNotification,
+} = require("../controllers/notification");
 
 exports.createComment = async (req, res, next) => {
   const { content, postId, parentId } = req.body;
@@ -39,6 +44,16 @@ exports.createComment = async (req, res, next) => {
 
   try {
     await newComment.save();
+
+    if (newComment.author.toString() !== post.author.toString()) {
+      await commentNotification(
+        newComment.author,
+        post.author,
+        postId,
+        newComment._id,
+        next
+      );
+    }
   } catch (error) {
     return next(new HttpError("Fail to create comment", 500));
   }
@@ -46,7 +61,31 @@ exports.createComment = async (req, res, next) => {
   res.status(201).json({ comment: newComment });
 };
 
-exports.deleteComment = async (req, res, next) => {
+exports.getCommentsByPostId = async (req, res, next) => {
+  const { postId } = req.params;
+
+  let post;
+  try {
+    post = await Post.findById(postId);
+  } catch (error) {
+    return next(new HttpError("Internal exception!", 500));
+  }
+
+  if (!post) {
+    return next(new HttpError("Post not found!", 404));
+  }
+
+  let comments;
+  try {
+    comments = await Comment.find({ postId });
+  } catch (error) {
+    return next(new HttpError("Internal exception!", 500));
+  }
+
+  res.status(200).json({ comments });
+};
+
+exports.updateComment = async (req, res, next) => {
   const { commentId } = req.params;
 
   let comment;
@@ -60,8 +99,45 @@ exports.deleteComment = async (req, res, next) => {
     return next(new HttpError("Comment not found!", 404));
   }
 
+  Object.keys(req.body).forEach((key) => {
+    comment[key] = req.body[key];
+  });
+
+  try {
+    await comment.save();
+  } catch (error) {
+    return next(new HttpError("Cannot update comment!", 500));
+  }
+
+  res.status(200).json(comment);
+};
+
+exports.deleteComment = async (req, res, next) => {
+  const { commentId } = req.params;
+
+  let comment;
+  try {
+    comment = await Comment.findById(commentId).populate("postId");
+  } catch (error) {
+    return next(new HttpError("Internal exception!", 500));
+  }
+
+  if (!comment) {
+    return next(new HttpError("Comment not found!", 404));
+  }
+
   try {
     await comment.remove();
+
+    if (comment.author.toString() !== comment.postId.toString()) {
+      await removeCommentNotification(
+        comment.author,
+        comment.postId.author,
+        comment.postId._id,
+        comment._id,
+        next
+      );
+    }
   } catch (error) {
     return next(new HttpError("Fail to delete comment!", 500));
   }

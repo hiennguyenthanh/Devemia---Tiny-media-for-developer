@@ -12,7 +12,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       required: true,
-      // unique: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -22,12 +22,10 @@ const userSchema = new Schema(
     joinDate: { type: Date, default: Date.now() },
     // following: [{ type: mongoose.Types.ObjectId, ref: "User" }],
     followers: [{ type: mongoose.Types.ObjectId, ref: "User" }],
-    // posts: [{ type: mongoose.Types.ObjectId, ref: "Post" }],
-    // comments: [{ type: mongoose.Types.ObjectId, ref: "Comment" }],
   },
   { timestamps: true }
 );
 
-// userSchema.plugin(uniqueValidator);
+userSchema.plugin(uniqueValidator);
 
 module.exports = mongoose.model("User", userSchema);

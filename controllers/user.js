@@ -6,6 +6,9 @@ const HttpError = require("../models/http-error");
 const { createtoken } = require("../utils/index");
 const { uploadToCloudinary } = require("../utils/index");
 
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client();
+
 exports.getUserById = async (req, res, next) => {
   const { userId } = req.params;
 
@@ -43,7 +46,6 @@ exports.signUp = async (req, res, next) => {
   let imageUrl;
   try {
     imageUrl = await uploadToCloudinary(req.file);
-    console.log(imageUrl);
   } catch (error) {
     return next(new HttpError("Fail to upload image to cloud!", 500));
   }
@@ -56,7 +58,6 @@ exports.signUp = async (req, res, next) => {
       avatar: imageUrl,
     });
 
-    console.log(1);
     console.log(newUser);
 
     await newUser.save();
@@ -70,7 +71,6 @@ exports.signUp = async (req, res, next) => {
       },
     });
   } catch (error) {
-    console.log("error", error);
     return next(new HttpError("Fail to create post!", 500));
   }
 };
@@ -104,6 +104,11 @@ exports.logIn = async (req, res, next) => {
       token,
     },
   });
+};
+
+exports.googleLogin = async (req, res, next) => {
+  const token = req.headers.authorization.split(" ")[1];
+  console.log(token);
 };
 
 exports.updateUser = async (req, res, next) => {};

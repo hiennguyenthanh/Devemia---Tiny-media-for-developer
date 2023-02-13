@@ -1,8 +1,14 @@
+const mongoose = require("mongoose");
+const { validationResult } = require("express-validator");
+
 const Post = require("../models/post");
 const User = require("../models/user");
 const HttpError = require("../models/http-error");
-const { validationResult } = require("express-validator");
-const mongoose = require("mongoose");
+
+const {
+  likeNotification,
+  removeLikeNotification,
+} = require("../controllers/notification");
 
 exports.getAllPosts = async (req, res, next) => {
   try {
@@ -192,7 +198,7 @@ exports.likePost = async (req, res, next) => {
     );
 
     if (post.author.toString() !== author) {
-      // handle notification
+      await likeNotification(author, postId, post.author, next);
     }
   } catch (error) {
     return next(new HttpError("Fail to like post!", 500));
@@ -216,6 +222,7 @@ exports.unlikePost = async (req, res, next) => {
   }
 
   const author = req.userData.userId;
+
   try {
     post = await Post.findByIdAndUpdate(
       postId,
@@ -224,7 +231,7 @@ exports.unlikePost = async (req, res, next) => {
     );
 
     if (post.author.toString() !== author) {
-      // handle notification
+      await removeLikeNotification(author, postId, post.author, next);
     }
   } catch (error) {
     return next(new HttpError("Fail to unlike post!", 500));
