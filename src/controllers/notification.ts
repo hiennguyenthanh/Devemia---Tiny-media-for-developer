@@ -1,9 +1,12 @@
-const Notification = require("../models/notification");
-const NotificationType = require("../enums/noti-type");
-const HttpError = require("../models/http-error");
-const { NotificationError, CommonError } = require("../enums/error");
+import { Notification, HttpError } from "models";
+import { NotificationError, CommonError, NotificationType } from "enums";
 
-exports.likeNotification = async (senderId, postId, receiverId, next) => {
+export const likeNotification = async (
+  senderId: any,
+  postId: any,
+  receiverId: any,
+  next: any
+) => {
   const newNotification = new Notification({
     type: NotificationType.LIKE,
     senderId,
@@ -15,11 +18,16 @@ exports.likeNotification = async (senderId, postId, receiverId, next) => {
     await newNotification.save();
     return;
   } catch (error) {
-    return next(new HttpError(NotificationError.CANNOT_CREATE_LIKE_NOTI), 500);
+    return next(new HttpError(NotificationError.CANNOT_CREATE_LIKE_NOTI, 500));
   }
 };
 
-exports.removeLikeNotification = async (senderId, postId, receiverId, next) => {
+export const removeLikeNotification = async (
+  senderId: any,
+  postId: any,
+  receiverId: any,
+  next: any
+) => {
   const notification = await Notification.findOne({
     type: NotificationType.LIKE,
     senderId,
@@ -28,23 +36,23 @@ exports.removeLikeNotification = async (senderId, postId, receiverId, next) => {
   });
 
   if (!notification) {
-    return next(HttpError(NotificationError.NOT_FOUND, 404));
+    return next(new HttpError(NotificationError.NOT_FOUND, 404));
   }
 
   try {
     await notification.remove();
     return;
   } catch (error) {
-    return next(HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 };
 
-exports.commentNotification = async (
-  senderId,
-  receiverId,
-  postId,
-  commentId,
-  next
+export const commentNotification = async (
+  senderId: any,
+  receiverId: any,
+  postId: any,
+  commentId: any,
+  next: any
 ) => {
   const newNotification = new Notification({
     type: NotificationType.COMMENT,
@@ -59,18 +67,17 @@ exports.commentNotification = async (
     return;
   } catch (error) {
     return next(
-      new HttpError(NotificationError.CANNOT_CREATE_COMMENT_NOTI),
-      500
+      new HttpError(NotificationError.CANNOT_CREATE_COMMENT_NOTI, 500)
     );
   }
 };
 
-exports.removeCommentNotification = async (
-  senderId,
-  receiverId,
-  postId,
-  commentId,
-  next
+export const removeCommentNotification = async (
+  senderId: any,
+  receiverId: any,
+  postId: any,
+  commentId: any,
+  next: any
 ) => {
   const notification = await Notification.findOne({
     type: NotificationType.COMMENT,
@@ -81,18 +88,22 @@ exports.removeCommentNotification = async (
   });
 
   if (!notification) {
-    return next(HttpError(NotificationError.NOT_FOUND, 400));
+    return next(new HttpError(NotificationError.NOT_FOUND, 400));
   }
 
   try {
     await notification.remove();
     return;
   } catch (error) {
-    return next(HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 };
 
-exports.followNotification = async (senderId, receiverId, next) => {
+export const followNotification = async (
+  senderId: any,
+  receiverId: any,
+  next: any
+) => {
   const newNotification = new Notification({
     type: NotificationType.FOLLOW,
     senderId,
@@ -104,13 +115,16 @@ exports.followNotification = async (senderId, receiverId, next) => {
     return;
   } catch (error) {
     return next(
-      new HttpError(NotificationError.CANNOT_CREATE_FOLLOW_NOTI),
-      500
+      new HttpError(NotificationError.CANNOT_CREATE_FOLLOW_NOTI, 500)
     );
   }
 };
 
-exports.removeFollowNotification = async (senderId, receiverId, next) => {
+export const removeFollowNotification = async (
+  senderId: any,
+  receiverId: any,
+  next: any
+) => {
   const notification = await Notification.findOne({
     type: NotificationType.FOLLOW,
     senderId,
@@ -118,13 +132,13 @@ exports.removeFollowNotification = async (senderId, receiverId, next) => {
   });
 
   if (!notification) {
-    return next(HttpError(NotificationError.NOT_FOUND, 404));
+    return next(new HttpError(NotificationError.NOT_FOUND, 404));
   }
 
   try {
     await notification.remove();
     return;
   } catch (error) {
-    return next(HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 };

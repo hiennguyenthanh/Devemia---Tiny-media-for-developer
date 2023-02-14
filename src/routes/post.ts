@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const { body } = require("express-validator");
-const {
+import { body } from "express-validator";
+import {
   getAllPosts,
   createPost,
   getPostById,
@@ -10,8 +10,9 @@ const {
   deletePost,
   likePost,
   unlikePost,
-} = require("../controllers/post");
-const isAuth = require("../middlewares/is-auth");
+} from "controllers";
+
+import { isAuth } from "middlewares/is-auth";
 
 router.get("/", getAllPosts);
 
@@ -38,4 +39,4 @@ router.delete("/:postId", isAuth, deletePost);
 router.put("/:postId/like", isAuth, likePost);
 router.put("/:postId/unlike", isAuth, unlikePost);
 
-module.exports = router;
+export const postRoutes = router;

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const { NotificationType } = require("../enums/noti-type");
+import mongoose from "mongoose";
+// import { NotificationType } from "enums/noti-type";
 
 const Schema = mongoose.Schema;
 
@@ -16,4 +16,4 @@ const notificationSchema = new Schema({
   read: { type: Boolean, default: false },
 });
 
-module.exports = mongoose.model("Notification", notificationSchema);
+export const Notification = mongoose.model("Notification", notificationSchema);

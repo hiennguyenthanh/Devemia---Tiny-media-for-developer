@@ -1,16 +1,13 @@
-const Comment = require("../models/comment");
-const Post = require("../models/post");
-const User = require("../models/user");
-const HttpError = require("../models/http-error");
-const ErrorEnum = require("../enums/error");
-const mongoose = require("mongoose");
+import { Comment, Post, User, HttpError } from "models";
 
-const {
+import { CommonError } from "enums";
+
+import {
   commentNotification,
   removeCommentNotification,
-} = require("../controllers/notification");
+} from "controllers/notification";
 
-exports.createComment = async (req, res, next) => {
+export const createComment = async (req: any, res: any, next: any) => {
   const { content, postId, parentId } = req.body;
 
   let post;
@@ -35,7 +32,7 @@ exports.createComment = async (req, res, next) => {
     return next(new HttpError("User not found!", 404));
   }
 
-  const newComment = new Comment({
+  const newComment: any = new Comment({
     content,
     author: user._id,
     postId,
@@ -61,7 +58,7 @@ exports.createComment = async (req, res, next) => {
   res.status(201).json({ comment: newComment });
 };
 
-exports.getCommentsByPostId = async (req, res, next) => {
+export const getCommentsByPostId = async (req: any, res: any, next: any) => {
   const { postId } = req.params;
 
   let post;
@@ -85,10 +82,10 @@ exports.getCommentsByPostId = async (req, res, next) => {
   res.status(200).json({ comments });
 };
 
-exports.updateComment = async (req, res, next) => {
+export const updateComment = async (req: any, res: any, next: any) => {
   const { commentId } = req.params;
 
-  let comment;
+  let comment: any;
   try {
     comment = await Comment.findById(commentId);
   } catch (error) {
@@ -112,10 +109,10 @@ exports.updateComment = async (req, res, next) => {
   res.status(200).json(comment);
 };
 
-exports.deleteComment = async (req, res, next) => {
+export const deleteComment = async (req: any, res: any, next: any) => {
   const { commentId } = req.params;
 
-  let comment;
+  let comment: any;
   try {
     comment = await Comment.findById(commentId).populate("postId");
   } catch (error) {

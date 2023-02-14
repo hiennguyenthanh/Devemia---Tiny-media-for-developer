@@ -1,13 +1,14 @@
 const router = require("express").Router();
-const { body } = require("express-validator");
+import { body } from "express-validator";
 
-const {
+import {
   createComment,
   deleteComment,
   getCommentsByPostId,
   updateComment,
-} = require("../controllers/comment");
-const isAuth = require("../middlewares/is-auth");
+} from "controllers";
+
+import { isAuth } from "middlewares/is-auth";
 
 router.get("/:postId", getCommentsByPostId);
 
@@ -18,4 +19,5 @@ router.post("/", createComment);
 router.patch("/:commentId", updateComment);
 
 router.delete("/:commentId", deleteComment);
-module.exports = router;
+
+export const commentRoutes = router;

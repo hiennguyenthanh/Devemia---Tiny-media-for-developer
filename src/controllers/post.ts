@@ -1,27 +1,21 @@
-const mongoose = require("mongoose");
-const { validationResult } = require("express-validator");
+import mongoose from "mongoose";
+import { validationResult } from "express-validator";
+import { Post, HttpError, User } from "models";
+import { CommonError, PostError } from "enums";
 
-const Post = require("../models/post");
-const User = require("../models/user");
-const HttpError = require("../models/http-error");
-const { CommonError } = require("../enums/error");
+import { likeNotification, removeLikeNotification } from "controllers";
 
-const {
-  likeNotification,
-  removeLikeNotification,
-} = require("../controllers/notification");
-
-exports.getAllPosts = async (req, res, next) => {
+export const getAllPosts = async (req: any, res: any, next: any) => {
   try {
     const posts = await Post.find().populate("author", "-password");
 
     res.status(200).json(posts);
   } catch (error) {
-    return next(new HttpError("Failed to fetch posts!", 500));
+    return next(new HttpError(PostError.FAIL_TO_FETCH, 500));
   }
 };
 
-exports.createPost = async (req, res, next) => {
+export const createPost = async (req: any, res: any, next: any) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -38,7 +32,7 @@ exports.createPost = async (req, res, next) => {
   }
 
   if (!user) {
-    return next(new HttpError("Author not found!", 404));
+    return next(new HttpError(PostError.AUTHOR_NOT_FOUND, 404));
   }
 
   const { title, content } = req.body;
@@ -52,7 +46,7 @@ exports.createPost = async (req, res, next) => {
   try {
     await newPost.save();
   } catch (error) {
-    return next(new HttpError("Fail to create post", 500));
+    return next(new HttpError(PostError.FAIL_TO_CREATE, 500));
   }
 
   res
@@ -61,7 +55,7 @@ exports.createPost = async (req, res, next) => {
 };
 
 //issue: populate comments
-exports.getPostById = async (req, res, next) => {
+export const getPostById = async (req: any, res: any, next: any) => {
   const { postId } = req.params;
 
   let post;
@@ -72,25 +66,25 @@ exports.getPostById = async (req, res, next) => {
   }
 
   if (!post) {
-    return next(new HttpError("Post not found!", 404));
+    return next(new HttpError(PostError.NOT_FOUND, 404));
   }
 
   res.status(200).json({ post });
 };
 
-exports.getPostsByUserId = async (req, res, next) => {
+export const getPostsByUserId = async (req: any, res: any, next: any) => {
   const { userId } = req.params;
   let posts;
   try {
     posts = await Post.find({ author: userId }).populate("author", "-password");
   } catch (error) {
-    return next(new HttpError("Fail to fetch posts!", 500));
+    return next(new HttpError(PostError.FAIL_TO_FETCH, 500));
   }
 
   res.status(200).json({ posts });
 };
 
-exports.searchPosts = async (req, res, next) => {
+export const searchPosts = async (req: any, res: any, next: any) => {
   const query = req.query.title;
   let posts;
   try {
@@ -98,13 +92,13 @@ exports.searchPosts = async (req, res, next) => {
       title: { $regex: query, $options: "i" },
     });
   } catch (error) {
-    return next(new HttpError("Fail to search posts!", 500));
+    return next(new HttpError(PostError.FAIL_TO_FETCH, 500));
   }
 
   res.status(200).json({ posts });
 };
 
-exports.updatePost = async (req, res, next) => {
+export const updatePost = async (req: any, res: any, next: any) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -112,7 +106,7 @@ exports.updatePost = async (req, res, next) => {
   }
 
   const { postId } = req.params;
-  let post;
+  let post: any;
 
   try {
     post = await Post.findById(postId);
@@ -121,7 +115,7 @@ exports.updatePost = async (req, res, next) => {
   }
 
   if (!post) {
-    return next(new HttpError("Post not found!", 404));
+    return next(new HttpError(PostError.NOT_FOUND, 404));
   }
 
   if (post.author.toString() !== req.userData.userId) {
@@ -135,16 +129,16 @@ exports.updatePost = async (req, res, next) => {
   try {
     await post.save();
   } catch (error) {
-    return next(new HttpError("Cannot update post!", 500));
+    return next(new HttpError(PostError.FAIL_TO_UPDATE, 500));
   }
 
   res.status(200).json({ post });
 };
 
-exports.deletePost = async (req, res, next) => {
+export const deletePost = async (req: any, res: any, next: any) => {
   const { postId } = req.params;
 
-  let post;
+  let post: any;
   try {
     post = await Post.findById(postId).populate("author");
   } catch (error) {
@@ -152,7 +146,7 @@ exports.deletePost = async (req, res, next) => {
   }
 
   if (!post) {
-    return next(new HttpError("Post not found!", 404));
+    return next(new HttpError(PostError.NOT_FOUND, 404));
   }
 
   if (post.author._id.toString() !== req.userData.userId) {
@@ -160,26 +154,24 @@ exports.deletePost = async (req, res, next) => {
   }
 
   try {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    await post.remove({ session });
-    post.author.posts.pull(post);
-    await post.author.save({ session });
-
-    await session.commitTransaction();
-    await session.endSession();
+    // const session = await mongoose.startSession();
+    // session.startTransaction();
+    // await post.remove({ session });
+    // post.author.posts.pull(post);
+    // await post.author.save({ session });
+    // await session.commitTransaction();
+    // await session.endSession();
   } catch (error) {
-    return next(new HttpError("Fail to delete post!", 500));
+    return next(new HttpError(PostError.FAIL_TO_DELETE, 500));
   }
 
   res.status(200).json({ message: "Deleted post!" });
 };
 
-exports.likePost = async (req, res, next) => {
+export const likePost = async (req: any, res: any, next: any) => {
   const { postId } = req.params;
 
-  let post;
+  let post: any;
   try {
     post = await Post.findById(postId);
   } catch (error) {
@@ -187,7 +179,7 @@ exports.likePost = async (req, res, next) => {
   }
 
   if (!post) {
-    return next(new HttpError("Post not found!", 404));
+    return next(new HttpError(PostError.NOT_FOUND, 404));
   }
 
   const author = req.userData.userId;
@@ -202,16 +194,16 @@ exports.likePost = async (req, res, next) => {
       await likeNotification(author, postId, post.author, next);
     }
   } catch (error) {
-    return next(new HttpError("Fail to like post!", 500));
+    return next(new HttpError(PostError.FAIL_TO_LIKE, 500));
   }
 
   res.status(200).json(post);
 };
 
-exports.unlikePost = async (req, res, next) => {
+export const unlikePost = async (req: any, res: any, next: any) => {
   const { postId } = req.params;
 
-  let post;
+  let post: any;
   try {
     post = await Post.findById(postId);
   } catch (error) {
@@ -219,7 +211,7 @@ exports.unlikePost = async (req, res, next) => {
   }
 
   if (!post) {
-    return next(new HttpError("Post not found!", 404));
+    return next(new HttpError(PostError.NOT_FOUND, 404));
   }
 
   const author = req.userData.userId;
@@ -235,7 +227,7 @@ exports.unlikePost = async (req, res, next) => {
       await removeLikeNotification(author, postId, post.author, next);
     }
   } catch (error) {
-    return next(new HttpError("Fail to unlike post!", 500));
+    return next(new HttpError(PostError.FAIL_TO_UNLIKE, 500));
   }
 
   res.status(200).json(post);

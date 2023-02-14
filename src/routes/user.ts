@@ -1,9 +1,7 @@
 const router = require("express").Router();
-const { body } = require("express-validator");
-
-const passport = require("passport");
-
-const {
+import { body } from "express-validator";
+import passport from "passport";
+import {
   getUserById,
   signUp,
   logIn,
@@ -11,9 +9,9 @@ const {
   updateUser,
   followUser,
   unFollowUser,
-} = require("../controllers/user");
+} from "controllers";
 
-const isAuth = require("../middlewares/is-auth");
+import { isAuth } from "middlewares/is-auth";
 
 router.get("/:userId", getUserById);
 
@@ -46,4 +44,4 @@ router.post("/unfollow", unFollowUser);
 
 router.patch("/:userId", updateUser);
 
-module.exports = router;
+export const userRoutes = router;

@@ -1,20 +1,18 @@
-const express = require("express");
-const helmet = require("helmet");
-const compression = require("compression");
-const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const multer = require("multer");
+import express from "express";
+import helmet from "helmet";
+import compression from "compression";
+import bodyParser from "body-parser";
+import mongoose from "mongoose";
+import cors from "cors";
+import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
-const cookieSession = require("cookie-session");
+import cookieSession from "cookie-session";
 // const passport = require("passport");
 // const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
-const userRoutes = require("./routes/user");
-const postRoutes = require("./routes/post");
-const commentRoutes = require("./routes/comment");
+import { userRoutes, postRoutes, commentRoutes } from "routes";
 
 const app = express();
 
@@ -41,7 +39,7 @@ app.use(compression());
 app.use(
   cookieSession({
     name: "session",
-    keys: "cookie_key",
+    keys: ["cookie_key"],
     maxAge: 24 * 60 * 60 * 1000,
     secure: false,
     sameSite: false,

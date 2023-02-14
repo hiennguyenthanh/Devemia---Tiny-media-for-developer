@@ -1,10 +1,11 @@
-const path = require("path");
-const cloudinary = require("../config/cloudinary");
-const DatauriParser = require("datauri/parser");
-const parser = new DatauriParser();
-const jwt = require("jsonwebtoken");
+import path from "path";
+import cloudinary from "config/cloudinary";
+import DatauriParser from "datauri/parser";
+import jwt from "jsonwebtoken";
+import { File as File_ } from "interface/file.interface";
+const parser: DatauriParser = new DatauriParser();
 
-exports.uploadToCloudinary = async (file) => {
+export const uploadToCloudinary = async (file: any) => {
   try {
     const extName = path.extname(file.originalname).toString();
     const file64 = parser.format(extName, file.buffer);
@@ -15,8 +16,8 @@ exports.uploadToCloudinary = async (file) => {
   }
 };
 
-exports.createToken = (id, email) => {
-  let token;
+export const createToken = (id: string, email: string): string => {
+  let token: string;
   try {
     token = jwt.sign({ userId: id, email: email }, "secret", {
       expiresIn: "6h",

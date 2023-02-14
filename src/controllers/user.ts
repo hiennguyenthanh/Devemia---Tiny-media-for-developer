@@ -1,26 +1,23 @@
-const bcrypt = require("bcryptjs");
-const { validationResult } = require("express-validator");
+import bcrypt from "bcryptjs";
+import { validationResult } from "express-validator";
 
-const User = require("../models/user");
-const HttpError = require("../models/http-error");
-const { CommonError, UserError } = require("../enums/error");
-const { createToken } = require("../utils/index");
-const { uploadToCloudinary } = require("../utils/index");
+import { HttpError, User } from "models";
+import { CommonError, UserError } from "enums/error";
+import { createToken } from "utils/index";
+import { uploadToCloudinary } from "utils/index";
 
-const { OAuth2Client } = require("google-auth-library");
-const client = new OAuth2Client(
+import { OAuth2Client } from "google-auth-library";
+
+const client: OAuth2Client = new OAuth2Client(
   "764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com"
 );
 
-const {
-  followNotification,
-  removeFollowNotification,
-} = require("../controllers/notification");
+import { followNotification, removeFollowNotification } from "controllers";
 
-const DEDAULT_AVATAR =
+const DEDAULT_AVATAR: string =
   "https://res.cloudinary.com/drkvr9wta/image/upload/v1647701003/undraw_profile_pic_ic5t_ncxyyo.png";
 
-exports.getUserById = async (req, res, next) => {
+export const getUserById = async (req: any, res: any, next: any) => {
   const { userId } = req.params;
 
   let user;
@@ -37,7 +34,7 @@ exports.getUserById = async (req, res, next) => {
   res.status(200).json({ user });
 };
 
-exports.signUp = async (req, res, next) => {
+export const signUp = async (req: any, res: any, next: any) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -91,10 +88,10 @@ exports.signUp = async (req, res, next) => {
   }
 };
 
-exports.logIn = async (req, res, next) => {
+export const logIn = async (req: any, res: any, next: any) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+  const user: any = await User.findOne({ email });
 
   if (!user) {
     return next(new HttpError(UserError.INVALID_CREDENTIALS, 422));
@@ -122,10 +119,10 @@ exports.logIn = async (req, res, next) => {
   });
 };
 
-exports.googleLogin = async (req, res, next) => {
+export const googleLogin = async (req: any, res: any, next: any) => {
   // const token = req.headers.authorization.split(" ")[1];
   const { tokenId } = req.body;
-  let response;
+  let response: any;
   try {
     response = await client.verifyIdToken({
       idToken: tokenId,
@@ -139,7 +136,7 @@ exports.googleLogin = async (req, res, next) => {
 
   const { name, email, picture, email_verified } = response.getPayload();
   let existingUser;
-  let user;
+  let user: any;
 
   if (email_verified) {
     // user has a google account
@@ -169,7 +166,7 @@ exports.googleLogin = async (req, res, next) => {
     try {
       await user.save();
     } catch (error) {
-      return next(new HttpError(UserError.FAIL_TO_CREATE), 500);
+      return next(new HttpError(UserError.FAIL_TO_CREATE, 500));
     }
   }
 
@@ -177,7 +174,7 @@ exports.googleLogin = async (req, res, next) => {
   try {
     token = createToken(user._id, user.email);
   } catch (error) {
-    return next(new HttpError(UserError.FAIL_TO_GEN_TOKEN), 500);
+    return next(new HttpError(UserError.FAIL_TO_GEN_TOKEN, 500));
   }
 
   res.status(201).json({
@@ -190,10 +187,10 @@ exports.googleLogin = async (req, res, next) => {
   });
 };
 
-exports.updateUser = async (req, res, next) => {
+export const updateUser = async (req: any, res: any, next: any) => {
   const { userId } = req.params;
 
-  let user;
+  let user: any;
   try {
     user = await User.findById(userId);
   } catch (error) {
@@ -233,7 +230,7 @@ exports.updateUser = async (req, res, next) => {
   });
 };
 
-exports.followUser = async (req, res, next) => {
+export const followUser = async (req: any, res: any, next: any) => {
   const { userToFollowId } = req.body;
   const { userId } = req.userData;
 
@@ -277,7 +274,7 @@ exports.followUser = async (req, res, next) => {
   });
 };
 
-exports.unFollowUser = async (req, res, next) => {
+export const unFollowUser = async (req: any, res: any, next: any) => {
   const { userToFollowId } = req.body;
   const { userId } = req.userData;
 

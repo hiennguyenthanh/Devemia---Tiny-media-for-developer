@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
 
@@ -10,10 +10,8 @@ const commentSchema = new Schema(
     author: { type: mongoose.Types.ObjectId, ref: "User" },
     parentId: { type: mongoose.Types.ObjectId, ref: "Comment" },
     postId: { type: mongoose.Types.ObjectId, ref: "Post" },
-
-    // childs: [{ type: mongoose.Types.ObjectId, ref: "Comment" }],
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Comment", commentSchema);
+export const Comment = mongoose.model("Comment", commentSchema);
