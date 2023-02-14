@@ -9,6 +9,8 @@ const {
   logIn,
   googleLogin,
   updateUser,
+  followUser,
+  unFollowUser,
 } = require("../controllers/user");
 
 const isAuth = require("../middlewares/is-auth");
@@ -36,6 +38,12 @@ router.post("/login", logIn);
 
 router.post("/auth/google", googleLogin);
 
-router.patch("/:userId", isAuth, updateUser);
+router.use(isAuth);
+
+router.post("/follow", followUser);
+
+router.post("/unfollow", unFollowUser);
+
+router.patch("/:userId", updateUser);
 
 module.exports = router;

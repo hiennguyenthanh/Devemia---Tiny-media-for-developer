@@ -12,6 +12,11 @@ const client = new OAuth2Client(
   "764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com"
 );
 
+const {
+  followNotification,
+  removeFollowNotification,
+} = require("../controllers/notification");
+
 const DEDAULT_AVATAR =
   "https://res.cloudinary.com/drkvr9wta/image/upload/v1647701003/undraw_profile_pic_ic5t_ncxyyo.png";
 
@@ -228,4 +233,89 @@ exports.updateUser = async (req, res, next) => {
   });
 };
 
-exports.followUser = async (req, res, next) => {};
+exports.followUser = async (req, res, next) => {
+  const { userToFollowId } = req.body;
+  const { userId } = req.userData;
+
+  // users cannot follow themselves
+
+  if (userToFollowId.toString() === userId.toString()) {
+    return res.status(200).json({ message: "OK" });
+  }
+
+  let userToFollow;
+
+  try {
+    userToFollow = await User.findByIdAndUpdate(
+      userToFollowId,
+      {
+        $addToSet: { followers: userId },
+      },
+      { new: true }
+    );
+  } catch (error) {
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+  }
+
+  if (!userToFollow) {
+    return next(new HttpError(UserError.NOT_FOUND, 404));
+  }
+
+  try {
+    await followNotification(userId, userToFollowId, next);
+  } catch (error) {
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+  }
+
+  res.status(200).json({
+    user: {
+      userId: userToFollow._id,
+      name: userToFollow.name,
+      email: userToFollow.email,
+      followers: [...userToFollow.followers],
+    },
+  });
+};
+
+exports.unFollowUser = async (req, res, next) => {
+  const { userToFollowId } = req.body;
+  const { userId } = req.userData;
+
+  // users cannot un-follow themselves
+  if (userToFollowId === userId) {
+    return res.status(200).json({ message: "OK" });
+  }
+
+  let userToFollow;
+
+  try {
+    userToFollow = await User.findByIdAndUpdate(
+      userToFollowId,
+      {
+        $pull: { followers: userId },
+      },
+      { new: true }
+    );
+  } catch (error) {
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+  }
+
+  if (!userToFollow) {
+    return next(new HttpError(UserError.NOT_FOUND, 404));
+  }
+
+  try {
+    await removeFollowNotification(userId, userToFollowId, next);
+  } catch (error) {
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+  }
+
+  res.status(200).json({
+    user: {
+      userId: userToFollow._id,
+      name: userToFollow.name,
+      email: userToFollow.email,
+      followers: [...userToFollow.followers],
+    },
+  });
+};

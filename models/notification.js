@@ -9,9 +9,9 @@ const notificationSchema = new Schema({
   postId: { type: Schema.Types.ObjectId, ref: "Post" },
   commentId: { type: Schema.Types.ObjectId, ref: "Comment" },
   date: { type: Date, default: Date.now() },
-  types: {
+  type: {
     type: String,
-    enum: NotificationType,
+    enum: ["Comment", "Follow", "Like"],
   },
   read: { type: Boolean, default: false },
 });

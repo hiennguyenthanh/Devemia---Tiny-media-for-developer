@@ -1,5 +1,5 @@
-exports.NotificationType = {
-  LIKE: "like",
-  COMMENT: "comment",
-  FOLLOW: "follow",
+module.exports = {
+  LIKE: "Like",
+  COMMENT: "Comment",
+  FOLLOW: "Follow",
 };
