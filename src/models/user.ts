@@ -1,9 +1,9 @@
-import mongoose from "mongoose";
+import { Schema, model, Model } from "mongoose";
 import uniqueValidator from "mongoose-unique-validator";
 
-const Schema = mongoose.Schema;
+import { IUser } from "interface";
 
-const userSchema = new Schema(
+const userSchema: Schema<IUser> = new Schema<IUser>(
   {
     name: {
       type: String,
@@ -20,12 +20,11 @@ const userSchema = new Schema(
     },
     avatar: { type: String },
     joinDate: { type: Date, default: Date.now() },
-    // following: [{ type: mongoose.Types.ObjectId, ref: "User" }],
-    followers: [{ type: mongoose.Types.ObjectId, ref: "User" }],
+    followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );
 
 userSchema.plugin(uniqueValidator);
 
-export const User = mongoose.model("User", userSchema);
+export const User: Model<IUser> = model("User", userSchema);

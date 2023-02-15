@@ -32,3 +32,14 @@ export enum PostError {
   FAIL_TO_LIKE = "Fail to like post!",
   FAIL_TO_UNLIKE = "Fail to unlike post!",
 }
+
+export enum CommentError {
+  NOT_FOUND = "Comment not found!",
+  // AUTHOR_NOT_FOUND = "Author not found!",
+  FAIL_TO_FETCH = "Fail to fetch comments!",
+  FAIL_TO_CREATE = "Fail to create comment!",
+  FAIL_TO_UPDATE = "Fail to update comment!",
+  FAIL_TO_DELETE = "Fail to delete comment!",
+  FAIL_TO_LIKE = "Fail to like comment!",
+  FAIL_TO_UNLIKE = "Fail to unlike comment!",
+}

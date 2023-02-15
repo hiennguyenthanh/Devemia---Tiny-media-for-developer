@@ -1,6 +1,6 @@
 import { Comment, Post, User, HttpError } from "models";
 
-import { CommonError } from "enums";
+import { CommonError, CommentError, PostError, UserError } from "enums";
 
 import {
   commentNotification,
@@ -14,22 +14,22 @@ export const createComment = async (req: any, res: any, next: any) => {
   try {
     post = await Post.findById(postId);
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!post) {
-    return next(new HttpError("Post not found!", 404));
+    return next(new HttpError(PostError.NOT_FOUND, 404));
   }
 
   let user;
   try {
     user = await User.findById(req.userData.userId);
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!user) {
-    return next(new HttpError("User not found!", 404));
+    return next(new HttpError(UserError.NOT_FOUND, 404));
   }
 
   const newComment: any = new Comment({
@@ -52,7 +52,7 @@ export const createComment = async (req: any, res: any, next: any) => {
       );
     }
   } catch (error) {
-    return next(new HttpError("Fail to create comment", 500));
+    return next(new HttpError(CommentError.FAIL_TO_CREATE, 500));
   }
 
   res.status(201).json({ comment: newComment });
@@ -65,18 +65,18 @@ export const getCommentsByPostId = async (req: any, res: any, next: any) => {
   try {
     post = await Post.findById(postId);
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!post) {
-    return next(new HttpError("Post not found!", 404));
+    return next(new HttpError(PostError.NOT_FOUND, 404));
   }
 
   let comments;
   try {
     comments = await Comment.find({ postId });
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   res.status(200).json({ comments });
@@ -89,11 +89,11 @@ export const updateComment = async (req: any, res: any, next: any) => {
   try {
     comment = await Comment.findById(commentId);
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!comment) {
-    return next(new HttpError("Comment not found!", 404));
+    return next(new HttpError(CommentError.NOT_FOUND, 404));
   }
 
   Object.keys(req.body).forEach((key) => {
@@ -103,7 +103,7 @@ export const updateComment = async (req: any, res: any, next: any) => {
   try {
     await comment.save();
   } catch (error) {
-    return next(new HttpError("Cannot update comment!", 500));
+    return next(new HttpError(CommentError.FAIL_TO_UPDATE, 500));
   }
 
   res.status(200).json(comment);
@@ -116,11 +116,11 @@ export const deleteComment = async (req: any, res: any, next: any) => {
   try {
     comment = await Comment.findById(commentId).populate("postId");
   } catch (error) {
-    return next(new HttpError("Internal exception!", 500));
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
   }
 
   if (!comment) {
-    return next(new HttpError("Comment not found!", 404));
+    return next(new HttpError(CommentError.NOT_FOUND, 404));
   }
 
   try {
@@ -136,7 +136,7 @@ export const deleteComment = async (req: any, res: any, next: any) => {
       );
     }
   } catch (error) {
-    return next(new HttpError("Fail to delete comment!", 500));
+    return next(new HttpError(CommentError.FAIL_TO_DELETE, 500));
   }
 
   res.status(200).json({ message: "Comment deleted!" });

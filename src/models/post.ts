@@ -1,16 +1,16 @@
-import mongoose from "mongoose";
+import { Schema, model, Model } from "mongoose";
 
-const Schema = mongoose.Schema;
+import { IPost } from "interface";
 
-const postSchema = new Schema(
+const postSchema: Schema<IPost> = new Schema<IPost>(
   {
     title: { type: String, required: true },
     content: { type: String, required: true },
-    likes: [{ type: mongoose.Types.ObjectId, ref: "User" }],
-    author: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
     date: { type: Date, default: Date.now() },
   },
   { timestamps: true }
 );
 
-export const Post = mongoose.model("Post", postSchema);
+export const Post: Model<IPost> = model("Post", postSchema);

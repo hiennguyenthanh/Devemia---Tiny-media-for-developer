@@ -154,13 +154,7 @@ export const deletePost = async (req: any, res: any, next: any) => {
   }
 
   try {
-    // const session = await mongoose.startSession();
-    // session.startTransaction();
-    // await post.remove({ session });
-    // post.author.posts.pull(post);
-    // await post.author.save({ session });
-    // await session.commitTransaction();
-    // await session.endSession();
+    await post.remove();
   } catch (error) {
     return next(new HttpError(PostError.FAIL_TO_DELETE, 500));
   }
@@ -191,7 +185,7 @@ export const likePost = async (req: any, res: any, next: any) => {
     );
 
     if (post.author.toString() !== author) {
-      await likeNotification(author, postId, post.author, next);
+      await likeNotification(author, post.author, postId, next);
     }
   } catch (error) {
     return next(new HttpError(PostError.FAIL_TO_LIKE, 500));
@@ -224,7 +218,7 @@ export const unlikePost = async (req: any, res: any, next: any) => {
     );
 
     if (post.author.toString() !== author) {
-      await removeLikeNotification(author, postId, post.author, next);
+      await removeLikeNotification(author, post.author, postId, next);
     }
   } catch (error) {
     return next(new HttpError(PostError.FAIL_TO_UNLIKE, 500));

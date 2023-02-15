@@ -1,13 +1,15 @@
 import { Notification, HttpError } from "models";
 import { NotificationError, CommonError, NotificationType } from "enums";
 
+import { INotification } from "interface";
+
 export const likeNotification = async (
   senderId: any,
-  postId: any,
   receiverId: any,
+  postId: any,
   next: any
 ) => {
-  const newNotification = new Notification({
+  const newNotification: INotification = new Notification({
     type: NotificationType.LIKE,
     senderId,
     receiverId,
@@ -24,11 +26,11 @@ export const likeNotification = async (
 
 export const removeLikeNotification = async (
   senderId: any,
-  postId: any,
   receiverId: any,
+  postId: any,
   next: any
 ) => {
-  const notification = await Notification.findOne({
+  const notification: INotification | null = await Notification.findOne({
     type: NotificationType.LIKE,
     senderId,
     postId,
@@ -54,7 +56,7 @@ export const commentNotification = async (
   commentId: any,
   next: any
 ) => {
-  const newNotification = new Notification({
+  const newNotification: INotification = new Notification({
     type: NotificationType.COMMENT,
     senderId,
     receiverId,
@@ -79,7 +81,7 @@ export const removeCommentNotification = async (
   commentId: any,
   next: any
 ) => {
-  const notification = await Notification.findOne({
+  const notification: INotification | null = await Notification.findOne({
     type: NotificationType.COMMENT,
     senderId,
     receiverId,
@@ -104,7 +106,7 @@ export const followNotification = async (
   receiverId: any,
   next: any
 ) => {
-  const newNotification = new Notification({
+  const newNotification: INotification = new Notification({
     type: NotificationType.FOLLOW,
     senderId,
     receiverId,
@@ -125,7 +127,7 @@ export const removeFollowNotification = async (
   receiverId: any,
   next: any
 ) => {
-  const notification = await Notification.findOne({
+  const notification: INotification | null = await Notification.findOne({
     type: NotificationType.FOLLOW,
     senderId,
     receiverId,

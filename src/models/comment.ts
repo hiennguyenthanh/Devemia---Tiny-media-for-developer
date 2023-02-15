@@ -1,17 +1,17 @@
-import mongoose from "mongoose";
+import { Schema, model, Model } from "mongoose";
 
-const Schema = mongoose.Schema;
+import { IComment } from "interface";
 
-const commentSchema = new Schema(
+const commentSchema: Schema<IComment> = new Schema<IComment>(
   {
     content: { type: String, required: true },
     date: { type: Date, default: Date.now() },
-    likes: [{ type: mongoose.Types.ObjectId, ref: "User" }],
-    author: { type: mongoose.Types.ObjectId, ref: "User" },
-    parentId: { type: mongoose.Types.ObjectId, ref: "Comment" },
-    postId: { type: mongoose.Types.ObjectId, ref: "Post" },
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    author: { type: Schema.Types.ObjectId, ref: "User" },
+    parentId: { type: Schema.Types.ObjectId, ref: "Comment" },
+    postId: { type: Schema.Types.ObjectId, ref: "Post" },
   },
   { timestamps: true }
 );
 
-export const Comment = mongoose.model("Comment", commentSchema);
+export const Comment: Model<IComment> = model("Comment", commentSchema);

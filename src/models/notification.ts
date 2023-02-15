@@ -1,9 +1,8 @@
-import mongoose from "mongoose";
-// import { NotificationType } from "enums/noti-type";
+import { Schema, model, Model } from "mongoose";
 
-const Schema = mongoose.Schema;
+import { INotification } from "interface";
 
-const notificationSchema = new Schema({
+const notificationSchema: Schema<INotification> = new Schema<INotification>({
   senderId: { type: Schema.Types.ObjectId, ref: "User" },
   receiverId: { type: Schema.Types.ObjectId, ref: "User" },
   postId: { type: Schema.Types.ObjectId, ref: "Post" },
@@ -16,4 +15,7 @@ const notificationSchema = new Schema({
   read: { type: Boolean, default: false },
 });
 
-export const Notification = mongoose.model("Notification", notificationSchema);
+export const Notification: Model<INotification> = model(
+  "Notification",
+  notificationSchema
+);
