@@ -5,14 +5,22 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
 import multer from "multer";
+import cookieSession from "cookie-session";
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
-
-import cookieSession from "cookie-session";
+require("dotenv").config();
 // const passport = require("passport");
 // const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 import { userRoutes, postRoutes, commentRoutes } from "./routes";
+
+const {
+  MONGO_USER,
+  MONGO_DB,
+  MONGO_PASSWORD,
+  GOOGLE_CLIENT_ID,
+  GOOGLE_CLIENT_SECRET,
+} = process.env;
 
 const app = express();
 
@@ -20,8 +28,8 @@ const app = express();
 //   new GoogleStrategy(s
 //     {
 //       clientID:
-//         "764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com",
-//       clientSecret: "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",
+//         GOOGLE_CLIENT_ID,
+//       clientSecret: GOOGLE_CLIENT_SECRET,
 //       callbackURL: "/auth/google/callback",
 //     },
 //     (accessToken) => {
@@ -60,7 +68,7 @@ app.use("/comments", upload.single("file"), commentRoutes);
 
 try {
   mongoose.connect(
-    "mongodb+srv://hien:enhLohCjm8Vk3hSP@cluster0.mwbdzpd.mongodb.net/devemia?retryWrites=true&w=majority"
+    `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.mwbdzpd.mongodb.net/${MONGO_DB}?retryWrites=true&w=majority`
   );
   app.listen(3000, () => {
     console.log("listening on port 3000");

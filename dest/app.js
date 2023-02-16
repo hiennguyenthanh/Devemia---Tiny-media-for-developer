@@ -10,12 +10,14 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const cors_1 = __importDefault(require("cors"));
 const multer_1 = __importDefault(require("multer"));
+const cookie_session_1 = __importDefault(require("cookie-session"));
 const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage });
-const cookie_session_1 = __importDefault(require("cookie-session"));
+require("dotenv").config();
 // const passport = require("passport");
 // const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const routes_1 = require("./routes");
+const { MONGO_USER, MONGO_DB, MONGO_PASSWORD } = process.env;
 const app = (0, express_1.default)();
 // passport.use(
 //   new GoogleStrategy(s
@@ -51,8 +53,9 @@ app.use("/users", upload.single("file"), routes_1.userRoutes);
 app.use("/posts", upload.single("file"), routes_1.postRoutes);
 app.use("/comments", upload.single("file"), routes_1.commentRoutes);
 try {
-    mongoose_1.default.connect("mongodb+srv://hien:enhLohCjm8Vk3hSP@cluster0.mwbdzpd.mongodb.net/devemia?retryWrites=true&w=majority");
+    mongoose_1.default.connect(`mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.mwbdzpd.mongodb.net/${MONGO_DB}?retryWrites=true&w=majority`);
     app.listen(3000, () => {
+        console.log(MONGO_USER);
         console.log("listening on port 3000");
     });
 }

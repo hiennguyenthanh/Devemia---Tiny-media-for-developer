@@ -1,17 +1,18 @@
 import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
+import { OAuth2Client } from "google-auth-library";
+require("dotenv").config();
 
 import { HttpError, User } from "../models";
 import { CommonError, UserError } from "../enums/error";
 import { createToken, uploadToCloudinary } from "../utils/index";
 
-import { OAuth2Client } from "google-auth-library";
+import { followNotification, removeFollowNotification } from "./notification";
+const { SALT } = process.env;
 
 const client: OAuth2Client = new OAuth2Client(
   "764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com"
 );
-
-import { followNotification, removeFollowNotification } from "./notification";
 
 const DEDAULT_AVATAR: string =
   "https://res.cloudinary.com/drkvr9wta/image/upload/v1647701003/undraw_profile_pic_ic5t_ncxyyo.png";
@@ -50,7 +51,7 @@ export const signUp = async (req: any, res: any, next: any) => {
 
   let hashPassword;
   try {
-    hashPassword = await bcrypt.hash(password, 12);
+    hashPassword = await bcrypt.hash(password, parseInt(`${SALT}`));
   } catch (error) {
     return next(new HttpError(UserError.FAIL_TO_HASH_PASSWORD, 500));
   }
@@ -150,7 +151,7 @@ export const googleLogin = async (req: any, res: any, next: any) => {
     // user info not in this app db
     let hashPassword;
     try {
-      hashPassword = await bcrypt.hash(email + name, 12);
+      hashPassword = await bcrypt.hash(email + name, parseInt(`${SALT}`));
     } catch (error) {
       return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
     }

@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import { HttpError } from "../models";
+require("dotenv").config();
+const { JWT_SECRET } = process.env;
 
 export const isAuth = (req: any, res: any, next: any) => {
   try {
@@ -9,7 +11,7 @@ export const isAuth = (req: any, res: any, next: any) => {
       throw new Error("Authentication failed!");
     }
 
-    const decodedToken: any = jwt.verify(token, "secret");
+    const decodedToken: any = jwt.verify(token, `${JWT_SECRET}`);
 
     req.userData = { userId: decodedToken.userId };
 
