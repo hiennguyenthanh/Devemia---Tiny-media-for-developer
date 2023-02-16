@@ -95,6 +95,10 @@ export const updateComment = async (req: any, res: any, next: any) => {
     return next(new HttpError(CommentError.NOT_FOUND, 404));
   }
 
+  if (comment.author.toString() !== req.userData.userId.toString()) {
+    return next(new HttpError(CommonError.UNAUTHORIZED, 403));
+  }
+
   Object.keys(req.body).forEach((key) => {
     comment[key] = req.body[key];
   });

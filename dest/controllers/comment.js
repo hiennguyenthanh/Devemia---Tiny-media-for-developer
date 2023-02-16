@@ -87,6 +87,9 @@ const updateComment = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     if (!comment) {
         return next(new models_1.HttpError(enums_1.CommentError.NOT_FOUND, 404));
     }
+    if (comment.author.toString() !== req.userData.userId.toString()) {
+        return next(new models_1.HttpError(enums_1.CommonError.UNAUTHORIZED, 403));
+    }
     Object.keys(req.body).forEach((key) => {
         comment[key] = req.body[key];
     });
