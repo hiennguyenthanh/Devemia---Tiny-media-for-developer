@@ -1,6 +1,6 @@
 import { validationResult } from "express-validator";
 import { Post, HttpError, User } from "../models";
-import { CommonError, PostError } from "../enums";
+import { CommonError, PostError, UserError } from "../enums";
 
 import { likeNotification, removeLikeNotification } from "./notification";
 import { IPost } from "../interface";
@@ -72,6 +72,18 @@ export const getPostById = async (req: any, res: any, next: any) => {
 
 export const getPostsByUserId = async (req: any, res: any, next: any) => {
   const { userId } = req.params;
+
+  let user: any;
+  try {
+    user = await User.findById(userId);
+  } catch (error) {
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+  }
+
+  if (!user) {
+    return next(new HttpError(UserError.NOT_FOUND, 404));
+  }
+
   let posts;
   try {
     posts = await Post.find({ author: userId }).populate("author", "-password");

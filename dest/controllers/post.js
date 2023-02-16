@@ -74,6 +74,16 @@ const getPostById = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
 exports.getPostById = getPostById;
 const getPostsByUserId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId } = req.params;
+    let user;
+    try {
+        user = yield models_1.User.findById(userId);
+    }
+    catch (error) {
+        return next(new models_1.HttpError(enums_1.CommonError.INTERNAL_EXCEPTION, 500));
+    }
+    if (!user) {
+        return next(new models_1.HttpError(enums_1.UserError.NOT_FOUND, 404));
+    }
     let posts;
     try {
         posts = yield models_1.Post.find({ author: userId }).populate("author", "-password");
