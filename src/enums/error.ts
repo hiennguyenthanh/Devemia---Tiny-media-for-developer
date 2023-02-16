@@ -35,7 +35,6 @@ export enum PostError {
 
 export enum CommentError {
   NOT_FOUND = "Comment not found!",
-  // AUTHOR_NOT_FOUND = "Author not found!",
   FAIL_TO_FETCH = "Fail to fetch comments!",
   FAIL_TO_CREATE = "Fail to create comment!",
   FAIL_TO_UPDATE = "Fail to update comment!",

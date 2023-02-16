@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { HttpError } from "models";
+import { HttpError } from "../models";
 
 export const isAuth = (req: any, res: any, next: any) => {
   try {

@@ -1,4 +1,5 @@
-const router = require("express").Router();
+import express from "express";
+const router = express.Router();
 import { body } from "express-validator";
 
 import {
@@ -6,9 +7,9 @@ import {
   deleteComment,
   getCommentsByPostId,
   updateComment,
-} from "controllers";
+} from "../controllers";
 
-import { isAuth } from "middlewares/is-auth";
+import { isAuth } from "../middlewares/is-auth";
 
 router.get("/:postId", getCommentsByPostId);
 

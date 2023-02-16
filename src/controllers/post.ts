@@ -1,14 +1,13 @@
-import mongoose from "mongoose";
 import { validationResult } from "express-validator";
-import { Post, HttpError, User } from "models";
-import { CommonError, PostError } from "enums";
+import { Post, HttpError, User } from "../models";
+import { CommonError, PostError } from "../enums";
 
-import { likeNotification, removeLikeNotification } from "controllers";
+import { likeNotification, removeLikeNotification } from "./notification";
+import { IPost } from "../interface";
 
 export const getAllPosts = async (req: any, res: any, next: any) => {
   try {
-    const posts = await Post.find().populate("author", "-password");
-
+    const posts: IPost[] = await Post.find().populate("author", "-password");
     res.status(200).json(posts);
   } catch (error) {
     return next(new HttpError(PostError.FAIL_TO_FETCH, 500));
@@ -24,7 +23,7 @@ export const createPost = async (req: any, res: any, next: any) => {
 
   const author = req.userData.userId;
 
-  let user;
+  let user: any;
   try {
     user = await User.findById(author);
   } catch (error) {
@@ -54,7 +53,6 @@ export const createPost = async (req: any, res: any, next: any) => {
     .json({ post: (await newPost.populate("author", "-password")).toObject() });
 };
 
-//issue: populate comments
 export const getPostById = async (req: any, res: any, next: any) => {
   const { postId } = req.params;
 

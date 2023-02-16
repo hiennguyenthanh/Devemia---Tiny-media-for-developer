@@ -1,16 +1,15 @@
-import { Comment, Post, User, HttpError } from "models";
+import { Comment, Post, User, HttpError } from "../models";
 
-import { CommonError, CommentError, PostError, UserError } from "enums";
+import { CommonError, CommentError, PostError, UserError } from "../enums";
 
-import {
-  commentNotification,
-  removeCommentNotification,
-} from "controllers/notification";
+import { commentNotification, removeCommentNotification } from "./notification";
+
+import { IComment, IPost, IUser } from "../interface";
 
 export const createComment = async (req: any, res: any, next: any) => {
   const { content, postId, parentId } = req.body;
 
-  let post;
+  let post: IComment | null;
   try {
     post = await Post.findById(postId);
   } catch (error) {
@@ -21,7 +20,7 @@ export const createComment = async (req: any, res: any, next: any) => {
     return next(new HttpError(PostError.NOT_FOUND, 404));
   }
 
-  let user;
+  let user: IUser | null;
   try {
     user = await User.findById(req.userData.userId);
   } catch (error) {
@@ -61,7 +60,7 @@ export const createComment = async (req: any, res: any, next: any) => {
 export const getCommentsByPostId = async (req: any, res: any, next: any) => {
   const { postId } = req.params;
 
-  let post;
+  let post: IPost | null;
   try {
     post = await Post.findById(postId);
   } catch (error) {
@@ -72,7 +71,7 @@ export const getCommentsByPostId = async (req: any, res: any, next: any) => {
     return next(new HttpError(PostError.NOT_FOUND, 404));
   }
 
-  let comments;
+  let comments: IComment[];
   try {
     comments = await Comment.find({ postId });
   } catch (error) {

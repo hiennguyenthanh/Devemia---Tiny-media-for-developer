@@ -1,2 +1,2 @@
-export * from "enums/error";
-export * from "enums/noti-type";
+export * from "./error";
+export * from "./noti-type";

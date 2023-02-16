@@ -1,6 +1,6 @@
 import { Schema, model, Model } from "mongoose";
 
-import { IPost } from "interface";
+import { IPost } from "../interface";
 
 const postSchema: Schema<IPost> = new Schema<IPost>(
   {

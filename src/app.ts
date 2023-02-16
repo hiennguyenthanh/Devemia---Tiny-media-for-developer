@@ -12,12 +12,12 @@ import cookieSession from "cookie-session";
 // const passport = require("passport");
 // const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
-import { userRoutes, postRoutes, commentRoutes } from "routes";
+import { userRoutes, postRoutes, commentRoutes } from "./routes";
 
 const app = express();
 
 // passport.use(
-//   new GoogleStrategy(
+//   new GoogleStrategy(s
 //     {
 //       clientID:
 //         "764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com",

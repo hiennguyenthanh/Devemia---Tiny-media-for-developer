@@ -1,7 +1,7 @@
-import { Notification, HttpError } from "models";
-import { NotificationError, CommonError, NotificationType } from "enums";
+import { Notification, HttpError } from "../models";
+import { NotificationError, CommonError, NotificationType } from "../enums";
 
-import { INotification } from "interface";
+import { INotification } from "../interface";
 
 export const likeNotification = async (
   senderId: any,

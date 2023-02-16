@@ -1,7 +1,7 @@
 import { Schema, model, Model } from "mongoose";
 import uniqueValidator from "mongoose-unique-validator";
 
-import { IUser } from "interface";
+import { IUser } from "../interface";
 
 const userSchema: Schema<IUser> = new Schema<IUser>(
   {

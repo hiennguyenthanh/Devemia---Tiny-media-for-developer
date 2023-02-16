@@ -1,3 +1,3 @@
-export * from "routes/comment";
-export * from "routes/post";
-export * from "routes/user";
+export * from "./comment";
+export * from "./post";
+export * from "./user";

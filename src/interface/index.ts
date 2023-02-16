@@ -1,2 +1,2 @@
-export * from "interface/file.interface";
-export * from "interface/model.interface";
+export * from "./file.interface";
+export * from "./model.interface";

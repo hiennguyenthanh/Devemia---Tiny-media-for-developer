@@ -1,8 +1,8 @@
 import path from "path";
-import cloudinary from "config/cloudinary";
+import cloudinary from "../config/cloudinary";
 import DatauriParser from "datauri/parser";
 import jwt from "jsonwebtoken";
-import { File as File_ } from "interface/file.interface";
+import { File as File_ } from "../interface";
 const parser: DatauriParser = new DatauriParser();
 
 export const uploadToCloudinary = async (file: any) => {

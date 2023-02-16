@@ -1,10 +1,9 @@
 import bcrypt from "bcryptjs";
 import { validationResult } from "express-validator";
 
-import { HttpError, User } from "models";
-import { CommonError, UserError } from "enums/error";
-import { createToken } from "utils/index";
-import { uploadToCloudinary } from "utils/index";
+import { HttpError, User } from "../models";
+import { CommonError, UserError } from "../enums/error";
+import { createToken, uploadToCloudinary } from "../utils/index";
 
 import { OAuth2Client } from "google-auth-library";
 
@@ -12,7 +11,7 @@ const client: OAuth2Client = new OAuth2Client(
   "764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com"
 );
 
-import { followNotification, removeFollowNotification } from "controllers";
+import { followNotification, removeFollowNotification } from "./notification";
 
 const DEDAULT_AVATAR: string =
   "https://res.cloudinary.com/drkvr9wta/image/upload/v1647701003/undraw_profile_pic_ic5t_ncxyyo.png";
