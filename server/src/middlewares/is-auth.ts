@@ -11,9 +11,19 @@ export const isAuth = (req: any, res: any, next: any) => {
       throw new Error("Authentication failed!");
     }
 
-    const decodedToken: any = jwt.verify(token, `${JWT_SECRET}`);
+    const isGoogleToken: boolean = token.length > 350;
 
-    req.userData = { userId: decodedToken.userId };
+    let decodedToken: any;
+    if (isGoogleToken) {
+      decodedToken = jwt.decode(token); //fix
+      console.log("decoded token: ", decodedToken);
+
+      req.userData = { userId: decodedToken?.sub };
+    } else {
+      decodedToken = jwt.verify(token, `${JWT_SECRET}`);
+
+      req.userData = { userId: decodedToken.userId };
+    }
 
     console.log(req.userData);
     next();

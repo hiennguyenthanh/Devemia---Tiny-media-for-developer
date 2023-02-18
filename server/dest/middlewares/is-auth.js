@@ -6,14 +6,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isAuth = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const models_1 = require("../models");
+require("dotenv").config();
+const { JWT_SECRET } = process.env;
 const isAuth = (req, res, next) => {
     try {
         const token = req.get("Authorization").split(" ")[1];
         if (!token) {
             throw new Error("Authentication failed!");
         }
-        const decodedToken = jsonwebtoken_1.default.verify(token, "secret");
-        req.userData = { userId: decodedToken.userId };
+        const isGoogleToken = token.length > 500;
+        let decodedToken;
+        if (isGoogleToken) {
+            decodedToken = jsonwebtoken_1.default.decode(token);
+            console.log("decoded token: ", decodedToken);
+            req.userData = { userId: decodedToken === null || decodedToken === void 0 ? void 0 : decodedToken.sub };
+        }
+        else {
+            decodedToken = jsonwebtoken_1.default.verify(token, `${JWT_SECRET}`);
+            req.userData = { userId: decodedToken.userId };
+        }
         console.log(req.userData);
         next();
     }

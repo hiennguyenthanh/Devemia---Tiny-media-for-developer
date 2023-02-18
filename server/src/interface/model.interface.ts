@@ -7,6 +7,7 @@ export interface IUser extends Document {
   avatar?: string;
   joinDate: Date;
   followers: Types.ObjectId[];
+  googleId: string;
 }
 
 export interface IPost extends Document {

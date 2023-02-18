@@ -15,12 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.unFollowUser = exports.followUser = exports.updateUser = exports.googleLogin = exports.logIn = exports.signUp = exports.getUserById = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const express_validator_1 = require("express-validator");
+const google_auth_library_1 = require("google-auth-library");
+require("dotenv").config();
 const models_1 = require("../models");
 const error_1 = require("../enums/error");
 const index_1 = require("../utils/index");
-const google_auth_library_1 = require("google-auth-library");
-const client = new google_auth_library_1.OAuth2Client("764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com");
 const notification_1 = require("./notification");
+const { SALT, GOOGLE_CLIENT_ID } = process.env;
+const client = new google_auth_library_1.OAuth2Client("764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com");
 const DEDAULT_AVATAR = "https://res.cloudinary.com/drkvr9wta/image/upload/v1647701003/undraw_profile_pic_ic5t_ncxyyo.png";
 const getUserById = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId } = req.params;
@@ -49,7 +51,7 @@ const signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
     }
     let hashPassword;
     try {
-        hashPassword = yield bcryptjs_1.default.hash(password, 12);
+        hashPassword = yield bcryptjs_1.default.hash(password, parseInt(`${SALT}`));
     }
     catch (error) {
         return next(new models_1.HttpError(error_1.UserError.FAIL_TO_HASH_PASSWORD, 500));
@@ -68,7 +70,6 @@ const signUp = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
             password: hashPassword,
             avatar: imageUrl,
         });
-        console.log(newUser);
         yield newUser.save();
         return res.status(201).json({
             user: {
@@ -112,13 +113,14 @@ const logIn = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.logIn = logIn;
 const googleLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // const token = req.headers.authorization.split(" ")[1];
-    const { tokenId } = req.body;
+    // const tokenId = req.headers.authorization.split(" ")[1];
+    const user_ = req.user;
+    let tokenId = user_.id;
     let response;
     try {
         response = yield client.verifyIdToken({
             idToken: tokenId,
-            audience: "764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com",
+            audience: GOOGLE_CLIENT_ID,
         });
         console.log(response);
     }
@@ -141,7 +143,7 @@ const googleLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         // user info not in this app db
         let hashPassword;
         try {
-            hashPassword = yield bcryptjs_1.default.hash(email + name, 12);
+            hashPassword = yield bcryptjs_1.default.hash(email + name, parseInt(`${SALT}`));
         }
         catch (error) {
             return next(new models_1.HttpError(error_1.CommonError.INTERNAL_EXCEPTION, 500));

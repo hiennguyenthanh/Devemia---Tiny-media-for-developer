@@ -23,6 +23,7 @@ const userSchema = new mongoose_1.Schema({
     avatar: { type: String },
     joinDate: { type: Date, default: Date.now() },
     followers: [{ type: mongoose_1.Schema.Types.ObjectId, ref: "User" }],
+    googleId: { type: String },
 }, { timestamps: true });
 userSchema.plugin(mongoose_unique_validator_1.default);
 exports.User = (0, mongoose_1.model)("User", userSchema);

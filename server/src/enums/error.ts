@@ -19,7 +19,7 @@ export enum UserError {
   FAIL_TO_UPLOAD_IMAGE = "Fail to upload image to cloudinary!",
   FAIL_TO_CREATE = "Fail to create user!",
   FAIL_TO_GEN_TOKEN = "Fail to generate token!",
-  FAIL_TO_VERIFY_TOKEN = "Fail to generate token!",
+  FAIL_TO_VERIFY_TOKEN = "Fail to verify token!",
 }
 
 export enum PostError {

@@ -18,6 +18,8 @@ const cloudinary_1 = __importDefault(require("../config/cloudinary"));
 const parser_1 = __importDefault(require("datauri/parser"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const parser = new parser_1.default();
+require("dotenv").config();
+const { JWT_SECRET, JWT_EXPIRE_TIME } = process.env;
 const uploadToCloudinary = (file) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const extName = path_1.default.extname(file.originalname).toString();
@@ -33,8 +35,8 @@ exports.uploadToCloudinary = uploadToCloudinary;
 const createToken = (id, email) => {
     let token;
     try {
-        token = jsonwebtoken_1.default.sign({ userId: id, email: email }, "secret", {
-            expiresIn: "6h",
+        token = jsonwebtoken_1.default.sign({ userId: id, email: email }, `${JWT_SECRET}`, {
+            expiresIn: JWT_EXPIRE_TIME,
         });
     }
     catch (err) {

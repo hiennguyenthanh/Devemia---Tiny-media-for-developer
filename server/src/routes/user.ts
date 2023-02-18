@@ -26,16 +26,18 @@ router.post(
   signUp
 );
 
-// router.get(
-//   "/auth/google",
-//   passport.authenticate("google", { scope: ["profile", "email"] })
-// );
+router.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
 
-// router.get("/auth/google/callback", passport.authenticate("google"));
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  googleLogin
+);
 
 router.post("/login", logIn);
-
-router.post("/auth/google", googleLogin);
 
 router.use(isAuth);
 

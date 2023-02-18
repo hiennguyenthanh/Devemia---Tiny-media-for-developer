@@ -23,7 +23,7 @@ var UserError;
     UserError["FAIL_TO_UPLOAD_IMAGE"] = "Fail to upload image to cloudinary!";
     UserError["FAIL_TO_CREATE"] = "Fail to create user!";
     UserError["FAIL_TO_GEN_TOKEN"] = "Fail to generate token!";
-    UserError["FAIL_TO_VERIFY_TOKEN"] = "Fail to generate token!";
+    UserError["FAIL_TO_VERIFY_TOKEN"] = "Fail to verify token!";
 })(UserError = exports.UserError || (exports.UserError = {}));
 var PostError;
 (function (PostError) {

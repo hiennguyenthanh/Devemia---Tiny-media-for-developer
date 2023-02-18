@@ -8,7 +8,7 @@ import { CommonError, UserError } from "../enums/error";
 import { createToken, uploadToCloudinary } from "../utils/index";
 
 import { followNotification, removeFollowNotification } from "./notification";
-const { SALT } = process.env;
+const { SALT, GOOGLE_CLIENT_ID } = process.env;
 
 const client: OAuth2Client = new OAuth2Client(
   "764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com"
@@ -71,8 +71,6 @@ export const signUp = async (req: any, res: any, next: any) => {
       avatar: imageUrl,
     });
 
-    console.log(newUser);
-
     await newUser.save();
 
     return res.status(201).json({
@@ -119,73 +117,71 @@ export const logIn = async (req: any, res: any, next: any) => {
   });
 };
 
-export const googleLogin = async (req: any, res: any, next: any) => {
-  // const token = req.headers.authorization.split(" ")[1];
-  const { tokenId } = req.body;
-  let response: any;
-  try {
-    response = await client.verifyIdToken({
-      idToken: tokenId,
-      audience:
-        "764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com",
-    });
-    console.log(response);
-  } catch (error) {
-    return next(new HttpError(UserError.FAIL_TO_VERIFY_TOKEN, 500));
-  }
+//export const googleLogin = async (req: any, res: any, next: any) => {
+// console.log(req.user.accessToken);
+// let response: any;
+// try {
+//   response = await client.verifyIdToken({
+//     idToken: req.user.accessToken,
+//     audience: GOOGLE_CLIENT_ID,
+//   });
+//   console.log(response);
+// } catch (error) {
+//   return next(new HttpError(UserError.FAIL_TO_VERIFY_TOKEN, 500));
+// }
 
-  const { name, email, picture, email_verified } = response.getPayload();
-  let existingUser;
-  let user: any;
+// const { name, email, picture, email_verified } = response.getPayload();
+// let existingUser;
+// let user: any;
 
-  if (email_verified) {
-    // user has a google account
-    try {
-      existingUser = await User.findOne({ email });
-    } catch (error) {
-      return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
-    }
-  }
+// if (email_verified) {
+//   // user has a google account
+//   try {
+//     existingUser = await User.findOne({ email });
+//   } catch (error) {
+//     return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+//   }
+// }
 
-  if (!existingUser) {
-    // user info not in this app db
-    let hashPassword;
-    try {
-      hashPassword = await bcrypt.hash(email + name, parseInt(`${SALT}`));
-    } catch (error) {
-      return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
-    }
+// if (!existingUser) {
+//   // user info not in this app db
+//   let hashPassword;
+//   try {
+//     hashPassword = await bcrypt.hash(email + name, parseInt(`${SALT}`));
+//   } catch (error) {
+//     return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+//   }
 
-    user = new User({
-      email,
-      password: hashPassword,
-      name,
-      avatar: picture || DEDAULT_AVATAR,
-    });
+//   user = new User({
+//     email,
+//     password: hashPassword,
+//     name,
+//     avatar: picture || DEDAULT_AVATAR,
+//   });
 
-    try {
-      await user.save();
-    } catch (error) {
-      return next(new HttpError(UserError.FAIL_TO_CREATE, 500));
-    }
-  }
+//   try {
+//     await user.save();
+//   } catch (error) {
+//     return next(new HttpError(UserError.FAIL_TO_CREATE, 500));
+//   }
+// }
 
-  let token;
-  try {
-    token = createToken(user._id, user.email);
-  } catch (error) {
-    return next(new HttpError(UserError.FAIL_TO_GEN_TOKEN, 500));
-  }
+// let token;
+// try {
+//   token = createToken(user._id, user.email);
+// } catch (error) {
+//   return next(new HttpError(UserError.FAIL_TO_GEN_TOKEN, 500));
+// }
 
-  res.status(201).json({
-    user: {
-      userId: user._id,
-      name: user.name,
-      email: user.email,
-      token,
-    },
-  });
-};
+// res.status(201).json({
+//   user: {
+//     userId: user._id,
+//     name: user.name,
+//     email: user.email,
+//     token,
+//   },
+// });
+//};
 
 export const updateUser = async (req: any, res: any, next: any) => {
   const { userId } = req.params;
@@ -313,6 +309,65 @@ export const unFollowUser = async (req: any, res: any, next: any) => {
       name: userToFollow.name,
       email: userToFollow.email,
       followers: [...userToFollow.followers],
+    },
+  });
+};
+
+export const googleLogin = async (req: any, res: any, next: any) => {
+  const googleProfile = req.user;
+
+  let user: any;
+  try {
+    user = await User.findOne({ googleId: googleProfile.id }).exec();
+  } catch (error) {
+    throw new HttpError("Fail to find user!", 500);
+  }
+
+  if (!user) {
+    let email: string = googleProfile.emails[0].value;
+    let { name, picture, id } = googleProfile;
+    let hashPassword;
+
+    try {
+      hashPassword = await bcrypt.hash(email + name, parseInt(`${SALT}`));
+    } catch (error) {
+      throw new HttpError(UserError.FAIL_TO_HASH_PASSWORD, 500);
+    }
+
+    user = new User({
+      name: `${name.familyName} ${name.givenName}`,
+      email,
+      googleId: id,
+      avatar: picture,
+      password: hashPassword,
+    });
+
+    console.log(user);
+
+    try {
+      await user.save();
+      console.log("saved");
+    } catch (error) {
+      throw new HttpError(UserError.FAIL_TO_CREATE, 500);
+    }
+  }
+
+  let token;
+  try {
+    token = createToken(
+      user._id + user._id + user._id + user._id + user._id,
+      user.email + user.email + user.email + user.email + user.email
+    );
+  } catch (error) {
+    throw new HttpError(UserError.FAIL_TO_GEN_TOKEN, 500);
+  }
+
+  res.status(201).json({
+    user: {
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+      token,
     },
   });
 };

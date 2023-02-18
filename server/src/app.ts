@@ -6,11 +6,12 @@ import mongoose from "mongoose";
 import cors from "cors";
 import multer from "multer";
 import cookieSession from "cookie-session";
+import bcrypt from "bcryptjs";
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+import passport from "passport";
 require("dotenv").config();
-// const passport = require("passport");
-// const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 import { userRoutes, postRoutes, commentRoutes } from "./routes";
 
@@ -20,23 +21,10 @@ const {
   MONGO_PASSWORD,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
+  SALT,
 } = process.env;
 
 const app = express();
-
-// passport.use(
-//   new GoogleStrategy(s
-//     {
-//       clientID:
-//         GOOGLE_CLIENT_ID,
-//       clientSecret: GOOGLE_CLIENT_SECRET,
-//       callbackURL: "/auth/google/callback",
-//     },
-//     (accessToken) => {
-//       console.log(accessToken);
-//     }
-//   )
-// );
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -60,6 +48,31 @@ app.use(
     methods: "GET, POST ,PUT, DELETE",
     credentials: true,
   })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function (user, done) {
+  done(null, user);
+});
+
+passport.deserializeUser(function (user: any, done) {
+  done(null, user);
+});
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
+      callbackURL: "/users/auth/google/callback", // --> controller
+    },
+    async (accessToken: any, refreshToken: any, profile: any, done: any) => {
+      profile.accessToken = accessToken;
+      done(null, profile);
+    }
+  )
 );
 
 app.use("/users", upload.single("file"), userRoutes);

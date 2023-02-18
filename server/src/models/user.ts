@@ -21,6 +21,7 @@ const userSchema: Schema<IUser> = new Schema<IUser>(
     avatar: { type: String },
     joinDate: { type: Date, default: Date.now() },
     followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    googleId: { type: String },
   },
   { timestamps: true }
 );
