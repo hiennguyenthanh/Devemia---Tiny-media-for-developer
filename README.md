@@ -3,6 +3,7 @@
 
 # Features
 - Login / Signup (JWT)
+- Login with Google
 - Create / Remove / Update / Delete Post
 - Like / Comment Post
 - Search Posts by Title
