@@ -93,7 +93,7 @@ app.use("/users", upload.single("file"), userRoutes);
 app.use("/posts", upload.single("file"), postRoutes);
 app.use("/comments", upload.single("file"), commentRoutes);
 
-app.use(errorHandler);
+// app.use(errorHandler);
 
 try {
   mongoose.connect(

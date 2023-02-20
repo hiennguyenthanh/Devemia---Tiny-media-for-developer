@@ -10,11 +10,13 @@ import {
   updateUser,
   followUser,
   unFollowUser,
+  sendForgetPasswordEmail,
+  changePassword,
 } from "../controllers";
 
 import { isAuth } from "../middlewares/is-auth";
 
-router.get("/:userId", getUserById);
+router.get("/forgetPassword", sendForgetPasswordEmail);
 
 router.post(
   "/signup",
@@ -37,7 +39,11 @@ router.get(
   googleLogin
 );
 
+router.get("/:userId", getUserById);
+
 router.post("/login", logIn);
+
+router.post("/changePassword", [body("email").not().isEmpty()], changePassword);
 
 router.use(isAuth);
 

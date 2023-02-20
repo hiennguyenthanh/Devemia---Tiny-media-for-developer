@@ -9,6 +9,7 @@ import { createToken, uploadToCloudinary } from "../utils/index";
 
 import { followNotification, removeFollowNotification } from "./notification";
 import { Request, Response, NextFunction } from "express";
+import { transporter, mailOptions } from "../utils/email-sender";
 const { SALT, GOOGLE_CLIENT_ID } = process.env;
 
 const client: OAuth2Client = new OAuth2Client(
@@ -399,4 +400,73 @@ export const googleLogin = async (
       token,
     },
   });
+};
+
+export const sendForgetPasswordEmail = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log("handler called");
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      next(error);
+    } else {
+      res.status(200).json({ message: "Email send!" });
+    }
+  });
+};
+
+export const changePassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { currentPassword, newPassword, confirmPassword, email } = req.body;
+
+  let user: any;
+  try {
+    user = await User.findOne({ email });
+  } catch (error) {
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+  }
+
+  if (!user) {
+    return next(new HttpError(UserError.NOT_FOUND, 404));
+  }
+
+  let isEqual;
+  try {
+    isEqual = await bcrypt.compare(currentPassword.toString(), user.password);
+  } catch (error) {
+    return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+  }
+
+  if (!isEqual) {
+    return next(new HttpError("Wrong password!", 500));
+  }
+
+  if (confirmPassword !== newPassword) {
+    return next(new HttpError("Wrong confirm password!", 400));
+  }
+
+  let hashNewPassword;
+  try {
+    hashNewPassword = await bcrypt.hash(
+      newPassword.toString(),
+      parseInt(`${SALT}`)
+    );
+  } catch (error) {
+    return next(new HttpError(UserError.FAIL_TO_HASH_PASSWORD, 500));
+  }
+
+  user.password = hashNewPassword;
+
+  try {
+    await user.save();
+  } catch (error) {
+    return next(new HttpError("Fail to change password", 500));
+  }
+
+  res.status(200).json({ message: "Password changed successfully" });
 };

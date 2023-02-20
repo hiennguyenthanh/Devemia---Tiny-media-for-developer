@@ -18,6 +18,7 @@ router.post("/signup", [
 ], controllers_1.signUp);
 router.get("/auth/google", passport_1.default.authenticate("google", { scope: ["profile", "email"] }));
 router.get("/auth/google/callback", passport_1.default.authenticate("google", { failureRedirect: "/login" }), controllers_1.googleLogin);
+router.get("/forgetPassword", controllers_1.sendForgetPasswordEmail);
 router.post("/login", controllers_1.logIn);
 router.use(is_auth_1.isAuth);
 router.post("/follow", controllers_1.followUser);

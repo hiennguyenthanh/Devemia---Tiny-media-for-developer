@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.googleLogin = exports.unFollowUser = exports.followUser = exports.updateUser = exports.logIn = exports.signUp = exports.getUserById = void 0;
+exports.sendForgetPasswordEmail = exports.googleLogin = exports.unFollowUser = exports.followUser = exports.updateUser = exports.logIn = exports.signUp = exports.getUserById = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const express_validator_1 = require("express-validator");
 const google_auth_library_1 = require("google-auth-library");
@@ -21,6 +21,7 @@ const models_1 = require("../models");
 const error_1 = require("../enums/error");
 const index_1 = require("../utils/index");
 const notification_1 = require("./notification");
+const email_sender_1 = require("../utils/email-sender");
 const { SALT, GOOGLE_CLIENT_ID } = process.env;
 const client = new google_auth_library_1.OAuth2Client("764856699346-tiro1ugori8or5qs2gs3vrckilamfrrs.apps.googleusercontent.com");
 const DEDAULT_AVATAR = "https://res.cloudinary.com/drkvr9wta/image/upload/v1647701003/undraw_profile_pic_ic5t_ncxyyo.png";
@@ -330,3 +331,14 @@ const googleLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     });
 });
 exports.googleLogin = googleLogin;
+const sendForgetPasswordEmail = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    email_sender_1.transporter.sendMail(email_sender_1.mailOptions, (error, info) => {
+        if (error) {
+            next(error);
+        }
+        else {
+            res.status(200).json({ message: "Email send!" });
+        }
+    });
+});
+exports.sendForgetPasswordEmail = sendForgetPasswordEmail;
