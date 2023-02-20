@@ -4,6 +4,8 @@
 # Features
 - Login / Signup (JWT)
 - Login with Google
+- Send Email
+- Change password
 - Create / Remove / Update / Delete Post
 - Like / Comment Post
 - Search Posts by Title
