@@ -8,6 +8,7 @@ import { CommonError, UserError } from "../enums/error";
 import { createToken, uploadToCloudinary } from "../utils/index";
 
 import { followNotification, removeFollowNotification } from "./notification";
+import { Request, Response, NextFunction } from "express";
 const { SALT, GOOGLE_CLIENT_ID } = process.env;
 
 const client: OAuth2Client = new OAuth2Client(
@@ -17,7 +18,11 @@ const client: OAuth2Client = new OAuth2Client(
 const DEDAULT_AVATAR: string =
   "https://res.cloudinary.com/drkvr9wta/image/upload/v1647701003/undraw_profile_pic_ic5t_ncxyyo.png";
 
-export const getUserById = async (req: any, res: any, next: any) => {
+export const getUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { userId } = req.params;
 
   let user;
@@ -34,7 +39,11 @@ export const getUserById = async (req: any, res: any, next: any) => {
   res.status(200).json({ user });
 };
 
-export const signUp = async (req: any, res: any, next: any) => {
+export const signUp = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -86,7 +95,11 @@ export const signUp = async (req: any, res: any, next: any) => {
   }
 };
 
-export const logIn = async (req: any, res: any, next: any) => {
+export const logIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { email, password } = req.body;
 
   const user: any = await User.findOne({ email });
@@ -117,7 +130,7 @@ export const logIn = async (req: any, res: any, next: any) => {
   });
 };
 
-//export const googleLogin = async (req: any, res: any, next: any) => {
+//export const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
 // console.log(req.user.accessToken);
 // let response: any;
 // try {
@@ -183,7 +196,11 @@ export const logIn = async (req: any, res: any, next: any) => {
 // });
 //};
 
-export const updateUser = async (req: any, res: any, next: any) => {
+export const updateUser = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
   const { userId } = req.params;
 
   let user: any;
@@ -226,7 +243,11 @@ export const updateUser = async (req: any, res: any, next: any) => {
   });
 };
 
-export const followUser = async (req: any, res: any, next: any) => {
+export const followUser = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
   const { userToFollowId } = req.body;
   const { userId } = req.userData;
 
@@ -270,7 +291,11 @@ export const followUser = async (req: any, res: any, next: any) => {
   });
 };
 
-export const unFollowUser = async (req: any, res: any, next: any) => {
+export const unFollowUser = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
   const { userToFollowId } = req.body;
   const { userId } = req.userData;
 
@@ -313,7 +338,11 @@ export const unFollowUser = async (req: any, res: any, next: any) => {
   });
 };
 
-export const googleLogin = async (req: any, res: any, next: any) => {
+export const googleLogin = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+) => {
   const googleProfile = req.user;
 
   let user: any;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.unFollowUser = exports.followUser = exports.updateUser = exports.googleLogin = exports.logIn = exports.signUp = exports.getUserById = void 0;
+exports.googleLogin = exports.unFollowUser = exports.followUser = exports.updateUser = exports.logIn = exports.signUp = exports.getUserById = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const express_validator_1 = require("express-validator");
 const google_auth_library_1 = require("google-auth-library");
@@ -112,72 +112,64 @@ const logIn = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
     });
 });
 exports.logIn = logIn;
-const googleLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // const tokenId = req.headers.authorization.split(" ")[1];
-    const user_ = req.user;
-    let tokenId = user_.id;
-    let response;
-    try {
-        response = yield client.verifyIdToken({
-            idToken: tokenId,
-            audience: GOOGLE_CLIENT_ID,
-        });
-        console.log(response);
-    }
-    catch (error) {
-        return next(new models_1.HttpError(error_1.UserError.FAIL_TO_VERIFY_TOKEN, 500));
-    }
-    const { name, email, picture, email_verified } = response.getPayload();
-    let existingUser;
-    let user;
-    if (email_verified) {
-        // user has a google account
-        try {
-            existingUser = yield models_1.User.findOne({ email });
-        }
-        catch (error) {
-            return next(new models_1.HttpError(error_1.CommonError.INTERNAL_EXCEPTION, 500));
-        }
-    }
-    if (!existingUser) {
-        // user info not in this app db
-        let hashPassword;
-        try {
-            hashPassword = yield bcryptjs_1.default.hash(email + name, parseInt(`${SALT}`));
-        }
-        catch (error) {
-            return next(new models_1.HttpError(error_1.CommonError.INTERNAL_EXCEPTION, 500));
-        }
-        user = new models_1.User({
-            email,
-            password: hashPassword,
-            name,
-            avatar: picture || DEDAULT_AVATAR,
-        });
-        try {
-            yield user.save();
-        }
-        catch (error) {
-            return next(new models_1.HttpError(error_1.UserError.FAIL_TO_CREATE, 500));
-        }
-    }
-    let token;
-    try {
-        token = (0, index_1.createToken)(user._id, user.email);
-    }
-    catch (error) {
-        return next(new models_1.HttpError(error_1.UserError.FAIL_TO_GEN_TOKEN, 500));
-    }
-    res.status(201).json({
-        user: {
-            userId: user._id,
-            name: user.name,
-            email: user.email,
-            token,
-        },
-    });
-});
-exports.googleLogin = googleLogin;
+//export const googleLogin = async (req: Request, res: Response, next: NextFunction) => {
+// console.log(req.user.accessToken);
+// let response: any;
+// try {
+//   response = await client.verifyIdToken({
+//     idToken: req.user.accessToken,
+//     audience: GOOGLE_CLIENT_ID,
+//   });
+//   console.log(response);
+// } catch (error) {
+//   return next(new HttpError(UserError.FAIL_TO_VERIFY_TOKEN, 500));
+// }
+// const { name, email, picture, email_verified } = response.getPayload();
+// let existingUser;
+// let user: any;
+// if (email_verified) {
+//   // user has a google account
+//   try {
+//     existingUser = await User.findOne({ email });
+//   } catch (error) {
+//     return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+//   }
+// }
+// if (!existingUser) {
+//   // user info not in this app db
+//   let hashPassword;
+//   try {
+//     hashPassword = await bcrypt.hash(email + name, parseInt(`${SALT}`));
+//   } catch (error) {
+//     return next(new HttpError(CommonError.INTERNAL_EXCEPTION, 500));
+//   }
+//   user = new User({
+//     email,
+//     password: hashPassword,
+//     name,
+//     avatar: picture || DEDAULT_AVATAR,
+//   });
+//   try {
+//     await user.save();
+//   } catch (error) {
+//     return next(new HttpError(UserError.FAIL_TO_CREATE, 500));
+//   }
+// }
+// let token;
+// try {
+//   token = createToken(user._id, user.email);
+// } catch (error) {
+//   return next(new HttpError(UserError.FAIL_TO_GEN_TOKEN, 500));
+// }
+// res.status(201).json({
+//   user: {
+//     userId: user._id,
+//     name: user.name,
+//     email: user.email,
+//     token,
+//   },
+// });
+//};
 const updateUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId } = req.params;
     let user;
@@ -286,3 +278,55 @@ const unFollowUser = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     });
 });
 exports.unFollowUser = unFollowUser;
+const googleLogin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const googleProfile = req.user;
+    let user;
+    try {
+        user = yield models_1.User.findOne({ googleId: googleProfile.id }).exec();
+    }
+    catch (error) {
+        throw new models_1.HttpError("Fail to find user!", 500);
+    }
+    if (!user) {
+        let email = googleProfile.emails[0].value;
+        let { name, picture, id } = googleProfile;
+        let hashPassword;
+        try {
+            hashPassword = yield bcryptjs_1.default.hash(email + name, parseInt(`${SALT}`));
+        }
+        catch (error) {
+            throw new models_1.HttpError(error_1.UserError.FAIL_TO_HASH_PASSWORD, 500);
+        }
+        user = new models_1.User({
+            name: `${name.familyName} ${name.givenName}`,
+            email,
+            googleId: id,
+            avatar: picture,
+            password: hashPassword,
+        });
+        console.log(user);
+        try {
+            yield user.save();
+            console.log("saved");
+        }
+        catch (error) {
+            throw new models_1.HttpError(error_1.UserError.FAIL_TO_CREATE, 500);
+        }
+    }
+    let token;
+    try {
+        token = (0, index_1.createToken)(user._id + user._id + user._id + user._id + user._id, user.email + user.email + user.email + user.email + user.email);
+    }
+    catch (error) {
+        throw new models_1.HttpError(error_1.UserError.FAIL_TO_GEN_TOKEN, 500);
+    }
+    res.status(201).json({
+        user: {
+            userId: user._id,
+            name: user.name,
+            email: user.email,
+            token,
+        },
+    });
+});
+exports.googleLogin = googleLogin;

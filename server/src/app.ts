@@ -6,22 +6,26 @@ import mongoose from "mongoose";
 import cors from "cors";
 import multer from "multer";
 import cookieSession from "cookie-session";
-import bcrypt from "bcryptjs";
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+
+import { Server } from "socket.io";
+import { createServer } from "http";
+
 import passport from "passport";
-require("dotenv").config();
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 import { userRoutes, postRoutes, commentRoutes } from "./routes";
+import { errorHandler } from "./controllers";
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+require("dotenv").config();
 const {
   MONGO_USER,
   MONGO_DB,
   MONGO_PASSWORD,
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
-  SALT,
 } = process.env;
 
 const app = express();
@@ -75,9 +79,21 @@ passport.use(
   )
 );
 
+const HttpServer = createServer(app);
+
+const io: Server = new Server(HttpServer, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
+});
+// socketHandlers(io);
+
 app.use("/users", upload.single("file"), userRoutes);
 app.use("/posts", upload.single("file"), postRoutes);
 app.use("/comments", upload.single("file"), commentRoutes);
+
+app.use(errorHandler);
 
 try {
   mongoose.connect(

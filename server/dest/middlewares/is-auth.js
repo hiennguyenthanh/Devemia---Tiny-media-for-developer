@@ -14,10 +14,10 @@ const isAuth = (req, res, next) => {
         if (!token) {
             throw new Error("Authentication failed!");
         }
-        const isGoogleToken = token.length > 500;
+        const isGoogleToken = token.length > 350;
         let decodedToken;
         if (isGoogleToken) {
-            decodedToken = jsonwebtoken_1.default.decode(token);
+            decodedToken = jsonwebtoken_1.default.decode(token); //fix
             console.log("decoded token: ", decodedToken);
             req.userData = { userId: decodedToken === null || decodedToken === void 0 ? void 0 : decodedToken.sub };
         }

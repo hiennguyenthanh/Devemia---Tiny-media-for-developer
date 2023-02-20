@@ -14,7 +14,12 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.errorHandler = void 0;
 __exportStar(require("./comment"), exports);
 __exportStar(require("./notification"), exports);
 __exportStar(require("./post"), exports);
 __exportStar(require("./user"), exports);
+const errorHandler = (err, req, res, next) => {
+    res.send(500).json({ message: "Internal Server Error!" });
+};
+exports.errorHandler = errorHandler;

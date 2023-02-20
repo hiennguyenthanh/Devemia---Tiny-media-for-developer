@@ -17,14 +17,8 @@ router.post("/signup", [
     (0, express_validator_1.body)("password").isLength({ min: 6 }),
 ], controllers_1.signUp);
 router.get("/auth/google", passport_1.default.authenticate("google", { scope: ["profile", "email"] }));
-router.get("/auth/google/callback", passport_1.default.authenticate("google", { failureRedirect: "/login" }), function (req, res) {
-    // Successful authentication, redirect home.
-    // console.log(req.user);
-    console.log(2);
-    res.redirect("/");
-});
+router.get("/auth/google/callback", passport_1.default.authenticate("google", { failureRedirect: "/login" }), controllers_1.googleLogin);
 router.post("/login", controllers_1.logIn);
-// router.post("/auth/google", googleLogin);
 router.use(is_auth_1.isAuth);
 router.post("/follow", controllers_1.followUser);
 router.post("/unfollow", controllers_1.unFollowUser);

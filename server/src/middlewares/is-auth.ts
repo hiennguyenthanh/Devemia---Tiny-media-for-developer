@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken";
 import { HttpError } from "../models";
+import { RequestHandler } from "express";
 require("dotenv").config();
 const { JWT_SECRET } = process.env;
 
-export const isAuth = (req: any, res: any, next: any) => {
+export const isAuth: RequestHandler = (req: any, res: any, next: any) => {
   try {
     const token = req.get("Authorization").split(" ")[1];
 

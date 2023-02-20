@@ -20,15 +20,16 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const cors_1 = __importDefault(require("cors"));
 const multer_1 = __importDefault(require("multer"));
 const cookie_session_1 = __importDefault(require("cookie-session"));
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const storage = multer_1.default.memoryStorage();
-const upload = (0, multer_1.default)({ storage });
+const socket_io_1 = require("socket.io");
+const http_1 = require("http");
 const passport_1 = __importDefault(require("passport"));
-require("dotenv").config();
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const routes_1 = require("./routes");
-const models_1 = require("./models");
-const { MONGO_USER, MONGO_DB, MONGO_PASSWORD, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SALT, } = process.env;
+const controllers_1 = require("./controllers");
+const storage = multer_1.default.memoryStorage();
+const upload = (0, multer_1.default)({ storage });
+require("dotenv").config();
+const { MONGO_USER, MONGO_DB, MONGO_PASSWORD, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, } = process.env;
 const app = (0, express_1.default)();
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(body_parser_1.default.json());
@@ -60,45 +61,21 @@ passport_1.default.use(new GoogleStrategy({
     clientSecret: GOOGLE_CLIENT_SECRET,
     callbackURL: "/users/auth/google/callback", // --> controller
 }, (accessToken, refreshToken, profile, done) => __awaiter(void 0, void 0, void 0, function* () {
-    let user;
-    try {
-        user = yield models_1.User.findOne({ googleId: profile.id }).exec();
-    }
-    catch (error) {
-        throw new models_1.HttpError("Fail to find user!", 500);
-    }
-    console.log("user", user);
-    if (user === null) {
-        let email = profile.emails[0].value;
-        let { name, picture, id } = profile;
-        let hashPassword;
-        try {
-            hashPassword = yield bcryptjs_1.default.hash(email + name, parseInt(`${SALT}`));
-        }
-        catch (error) {
-            throw new models_1.HttpError("Fail to hash", 500);
-        }
-        user = new models_1.User({
-            name,
-            email,
-            googleId: id,
-            avatar: picture,
-            password: hashPassword,
-        });
-        try {
-            yield user.save();
-        }
-        catch (error) {
-            throw new models_1.HttpError("Internal exception", 500);
-        }
-    }
-    else {
-        done(null, profile);
-    }
+    profile.accessToken = accessToken;
+    done(null, profile);
 })));
+const HttpServer = (0, http_1.createServer)(app);
+const io = new socket_io_1.Server(HttpServer, {
+    cors: {
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST"],
+    },
+});
+// socketHandlers(io);
 app.use("/users", upload.single("file"), routes_1.userRoutes);
 app.use("/posts", upload.single("file"), routes_1.postRoutes);
 app.use("/comments", upload.single("file"), routes_1.commentRoutes);
+app.use(controllers_1.errorHandler);
 try {
     mongoose_1.default.connect(`mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.mwbdzpd.mongodb.net/${MONGO_DB}?retryWrites=true&w=majority`);
     app.listen(3000, () => {
